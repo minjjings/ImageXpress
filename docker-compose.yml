@@ -1,0 +1,37 @@
+services:
+  server-data-db:
+    container_name: server_data_db
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: server_data_db
+      POSTGRES_PASSWORD: server_data_db
+      POSTGRES_DB: server_data
+    volumes:
+      - server_data_db:/var/lib/postgresql/data
+    networks:
+      - image_network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: image_zipkin
+    restart: always
+    ports:
+      - "9411:9411"
+    networks:
+      - image_network
+
+  redis:
+    image: redis:latest
+    container_name: image_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  server_data_db:
+
+networks:
+  image_network:
+    driver: bridge
