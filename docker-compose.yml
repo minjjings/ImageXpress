@@ -29,6 +29,19 @@ services:
     ports:
       - "6379:6379"
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"  # Minio API 포트
+      - "9001:9001"  # Minio 웹 콘솔 포트
+    volumes:
+      - ./data:/data  # 데이터를 저장할 로컬 디렉토리
+    environment:
+      MINIO_ROOT_USER: minio    # Minio 로그인 사용자 이름
+      MINIO_ROOT_PASSWORD: minioadmin  # Minio 로그인 비밀번호
+    command: server /data --console-address ":9001"  # Minio 서버 실행 명령
+
 volumes:
   server_data_db:
 
