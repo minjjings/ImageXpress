@@ -14,7 +14,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Where;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
