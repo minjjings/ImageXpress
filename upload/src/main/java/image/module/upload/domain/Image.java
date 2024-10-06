@@ -5,15 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Builder
@@ -27,27 +31,28 @@ public class Image extends BaseEntity {
     @Column(name = "id")
     private UUID id;
 
+    @Column(nullable = false)
     private String originalFileName;
 
+    @Column(nullable = false)
     private String storedFileName;
 
+    //TODO : @Column(nullable = false) 추가
     private String cdnUrl;
 
+    @Column(nullable = false)
     private String fileType;
 
+    @Column(nullable = false)
     private Integer width;
 
+    @Column(nullable = false)
     private Integer height;
 
     @Column(name = "original_file_uuid")
     private UUID originalFileUUID;
 
-    public static Image create(String original_file_name,
-                               String cdn_url,
-                               String file_type,
-                               Integer width,
-                               Integer height)
-    {
+    public static Image create(MultipartFile file) {
         // 1. UUID 생성
         String uuid = UUID.randomUUID().toString();
 
@@ -57,13 +62,24 @@ public class Image extends BaseEntity {
         // 3. 저장할 파일 이름 생성 (이미지 이름 치환하기)
         String storedFileName = uuid + "_" + formattedTime;
 
+        // 4. width, height 구하기
+        int imageWidth = 0;
+        int imageHeight = 0;
+        try {
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            imageWidth = bufferedImage.getWidth();
+            imageHeight = bufferedImage.getHeight();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return Image.builder()
-                .originalFileName(original_file_name)
+                .originalFileName(file.getOriginalFilename())
                 .storedFileName(storedFileName)
-                .cdnUrl(cdn_url)
-                .fileType(file_type)
-                .width(width)
-                .height(height)
+                .cdnUrl(null)//TODO: cdn_url 설정
+                .fileType(file.getContentType())
+                .width(imageWidth)
+                .height(imageHeight)
                 .build();
     }
 

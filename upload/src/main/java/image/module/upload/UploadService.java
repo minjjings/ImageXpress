@@ -35,12 +35,7 @@ public class UploadService {
     //TODO: cdn_url 설정
     //이미지 데이터 db 저장
     public Image saveImageMetadata(MultipartFile file){
-        Image image = Image.create(file.getOriginalFilename(),
-                null,
-                file.getContentType(),
-                null,
-                null
-                );
+        Image image = Image.create(file);
         return imageRepository.save(image);
     }
 
