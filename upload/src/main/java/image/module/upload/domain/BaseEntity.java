@@ -15,13 +15,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
-@Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
     @Column(nullable = false)
-    private Boolean is_delete = false;
+    private Boolean isDeleted = false;
 
     @CreatedDate
     @Column(updatable = false)
@@ -33,7 +32,7 @@ public abstract class BaseEntity {
     private LocalDateTime deletedAt;
 
     public void delete() {
-        this.is_delete = true;
+        this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
 }
