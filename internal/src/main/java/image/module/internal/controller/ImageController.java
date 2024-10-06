@@ -2,46 +2,29 @@ package image.module.internal.controller;
 
 import image.module.internal.service.ImageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStream;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/images")
 @RequiredArgsConstructor
+@RequestMapping("/images")
 public class ImageController {
   private final ImageService imageService;
 
-  @PostMapping("/upload")
-  public ResponseEntity<String> uploadImage(
-          @RequestParam("file") MultipartFile file
-  ) {
+  @PostMapping("/resizeImage")
+  public ResponseEntity<String> resizeImage(@RequestParam("fileName") String fileName) {
     try {
-      imageService.uploadImage(file);
-      return ResponseEntity.ok("File uploaded successfully.");
+      // 전체 이미지 처리 로직을 관리하는 메서드
+      String webpFileName = imageService.processImage(fileName);
+      return ResponseEntity.ok("이미지 Processing 성공: " + webpFileName);
     } catch (Exception e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("이미지 Processing 실패.");
     }
   }
-
-  @GetMapping("/download")
-  public ResponseEntity<InputStreamResource> downloadFile(@RequestParam("file") String fileName) {
-    try {
-      InputStream imageStream = imageService.downloadImage(fileName);
-      return ResponseEntity.ok()
-              .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-              .contentType(MediaType.IMAGE_PNG) // 혹은 IMAGE_JPEG
-              .body(new InputStreamResource(imageStream)); // imageStream을 InputStreamResource으로 감싸서 반환
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
-  }
-
 }
