@@ -35,3 +35,9 @@ logging:
         orm:
           jdbc:
             bind: trace
+
+minio:
+  url: http://localhost:9000
+  accessKey: minio
+  secretKey: miniopass
+  bucket: mybucket

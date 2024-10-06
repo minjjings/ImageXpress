@@ -30,7 +30,10 @@ ext {
 dependencies {
     //minio
     implementation 'io.minio:minio:8.5.0'
-    
+
+    //okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
