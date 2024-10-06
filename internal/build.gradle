@@ -24,7 +24,14 @@ repositories {
 }
 
 dependencies {
+	//minio
+	implementation 'io.minio:minio:8.5.0'
+	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+	runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	//implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
