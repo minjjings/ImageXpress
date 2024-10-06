@@ -32,10 +32,10 @@ public class UploadService {
     @Value("${minio.bucket}")
     private String bucketName;
 
+    //TODO: cdn_url 설정
     //이미지 데이터 db 저장
     public Image saveImageMetadata(MultipartFile file){
         Image image = Image.create(file.getOriginalFilename(),
-                UUID.randomUUID() + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
                 null,
                 file.getContentType(),
                 null,
