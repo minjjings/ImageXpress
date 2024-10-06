@@ -3,6 +3,15 @@ package image.module.upload;
 import image.module.upload.domain.Image;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -37,8 +46,8 @@ public class UploadService {
 
     //이미지 업로드
     @Async
-    @SneakyThrows
-    public void uploadImage(MultipartFile file, Image image) {
+    public void uploadImage(MultipartFile file, Image image)
+            throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
