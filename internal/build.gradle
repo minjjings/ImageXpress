@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	//minio
 	implementation 'io.minio:minio:8.5.0'
 	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
@@ -35,6 +38,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
