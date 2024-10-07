@@ -5,18 +5,19 @@ import com.sksamuel.scrimage.webp.WebpWriter;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.MinioException;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
+@Slf4j
 @Service
 public class ImageService {
   @Value("${minio.buckets.downloadBucket}")
@@ -33,20 +34,22 @@ public class ImageService {
 
   // 전체 이미지 처리 로직을 관리하는 메서드
   @Transactional
-  public String processImage(String fileName) throws IOException, MinioException {
+  @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
+  public void listen(String message) {
+    log.info("@@@@@@" + message);
+
     // 1. 이미지 다운로드
-    InputStream originalFile = downloadImage(fileName);
+    InputStream originalFile = downloadImage(message);
     // 2. 원본 이미지 복사
     File copyOriginalFile = copyOriginalImage(originalFile);
     // 3. 복사 이미지 WebP로 변환
-    File webpFile = convertToWebp(fileName, copyOriginalFile);
+    File webpFile = convertToWebp(message, copyOriginalFile);
     // 4. WebP 이미지 업로드
-    uploadWebPImage(fileName, webpFile);
+    uploadWebPImage(message, webpFile);
     // 5. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, webpFile);
-    // 6. 변환된 파일 이름 반환
-    return fileName.replace(".png", ".webp").replace(".jpg", ".webp");
   }
+
 
   // 이미지 다운로드
   @SneakyThrows

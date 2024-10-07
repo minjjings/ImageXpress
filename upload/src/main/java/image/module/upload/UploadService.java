@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,11 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadService {
     private final MinioClient minioClient;
     private final ImageRepository imageRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Value("${minio.bucket}")
     private String bucketName;
 
-    //TODO: cdn_url 설정
+    //TODO: cdn_url 설정 uuid.png
     //이미지 데이터 db 저장
     public Image saveImageMetadata(MultipartFile file){
         Image image = Image.create(file);
@@ -54,5 +56,7 @@ public class UploadService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
     }
 }
