@@ -1,4 +1,4 @@
-package image.module.upload;
+package image.module.upload.config;
 
 import java.util.HashMap;
 import java.util.Map;

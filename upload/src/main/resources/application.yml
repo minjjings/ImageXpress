@@ -46,3 +46,10 @@ minio:
   accessKey: minio
   secretKey: minioadmin
   bucket: mybucket
+
+data-server:
+  url: localhost:19095
+
+cdn-server:
+  url: localhost:19096
+  path: /cdn

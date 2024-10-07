@@ -1,16 +1,7 @@
-package image.module.upload;
+package image.module.upload.presentation;
 
-import image.module.upload.domain.Image;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
+import image.module.upload.application.UploadService;
+import image.module.upload.application.ImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,20 +18,15 @@ public class UploadController {
 
     private final UploadService uploadService;
 
-    // 치환된 이미지 이름으로 minio에 저장하기
-    // Original_file_UUID 반환
-    // 파일 업로드 API
-    //    치환된 이미지 이름은 UUID_업로드 요청시간
-    //    ex) d5f59b88-2d5f-4d89-9e21-35fc2bcd0012_20231004123456
     @PostMapping
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             // 1. DB에 파일 메타데이터 저장 및 응답
-            Image image = uploadService.saveImageMetadata(file);
+            ImageResponse imageResponse = uploadService.saveImageMetadata(file);
             // 2. 비동기적으로 MinIO에 파일 저장
-            uploadService.uploadImage(file, image);
+            uploadService.uploadImage(file, imageResponse);
 
-            return ResponseEntity.ok(image.getOriginalFileUUID());
+            return ResponseEntity.ok(imageResponse.getOriginalFileUUID());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Upload failed: " + e.getMessage());
