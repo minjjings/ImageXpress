@@ -1,4 +1,4 @@
-package image.module.internal;
+package image.module.internal.config;
 
 import java.util.HashMap;
 import java.util.Map;

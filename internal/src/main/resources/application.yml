@@ -43,4 +43,6 @@ minio:
   access:
     key: minio
     secret: minioadmin
-  bucketName: original-bucket
+  buckets:
+    downloadBucket: mybucket
+    uploadBucket: update-bucket  # 수정된 부분
