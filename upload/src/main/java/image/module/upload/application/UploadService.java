@@ -1,7 +1,6 @@
 package image.module.upload.application;
 
 import image.module.upload.infrastructure.DataService;
-import image.module.upload.infrastructure.ImageRequest;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +20,12 @@ public class UploadService {
     @Value("${minio.bucket}")
     private String bucketName;
 
+    @Value("${cdn-server.url}")
+    private String cdnBaseUrl;
+
     //이미지 데이터 db 저장
     public ImageResponse saveImageMetadata(MultipartFile file){
-        ImageRequest imageRequest = ImageRequest.create(file);
+        ImageRequest imageRequest = ImageRequest.create(file, cdnBaseUrl);
         return dataService.uploadImage(imageRequest);
     }
 

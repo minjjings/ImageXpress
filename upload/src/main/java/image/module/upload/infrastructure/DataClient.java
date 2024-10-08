@@ -1,5 +1,6 @@
 package image.module.upload.infrastructure;
 
+import image.module.upload.application.ImageRequest;
 import image.module.upload.application.ImageResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

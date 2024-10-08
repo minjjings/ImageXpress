@@ -51,5 +51,4 @@ data-server:
   url: localhost:19095
 
 cdn-server:
-  url: localhost:19096
-  path: /cdn
+  url: http://localhost:19096/cdn
