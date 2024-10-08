@@ -4,6 +4,8 @@ import image.module.cdn.client.UrlServiceClient;
 import image.module.cdn.dto.ImageDto;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +60,7 @@ public class CdnService {
     public String checkFileExist(String cdnUrl) throws IOException {
         String fileLocation = redisService.getValue(cdnUrl);
         if (fileLocation == null) {
-            ImageDto imageDto = urlServiceClient.fetchImage(cdnUrl);
+            ImageDto imageDto = urlServiceClient.fetchImage(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
             fileLocation = saveImageInCdn(imageDto.getImageStream(), imageDto.getFileName());
             redisService.setValue(cdnUrl, fileLocation);
         }
