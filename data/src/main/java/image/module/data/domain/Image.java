@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "is_delete = false")
+@Where(clause = "is_deleted = false")
 @Entity(name = "image")
 public class Image extends BaseEntity {
     @Id
