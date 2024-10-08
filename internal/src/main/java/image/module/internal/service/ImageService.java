@@ -5,16 +5,16 @@ import com.sksamuel.scrimage.webp.WebpWriter;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
@@ -33,10 +33,8 @@ public class ImageService {
   private final MinioClient minioClient;
 
   // 전체 이미지 처리 로직을 관리하는 메서드
-  @Transactional
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
   public void listen(String message) {
-    log.info("@@@@@@" + message);
 
     // 1. 이미지 다운로드
     InputStream originalFile = downloadImage(message);
@@ -52,21 +50,28 @@ public class ImageService {
 
 
   // 이미지 다운로드
-  @SneakyThrows
   public InputStream downloadImage(String fileName) {
-    return minioClient.getObject(
-            GetObjectArgs.builder()
-                    .bucket(downloadBucket)
-                    .object(fileName)
-                    .build()
-    );
+    try {
+      return minioClient.getObject(
+              GetObjectArgs.builder()
+                      .bucket(downloadBucket)
+                      .object(fileName)
+                      .build()
+      );
+    } catch (Exception e) {
+      throw new IllegalArgumentException("이미지 다운로드 실패: " + e.getMessage());
+    }
   }
 
   // 원본 이미지 복사
-  @SneakyThrows
   private File copyOriginalImage(InputStream originalFile) {
-    File copyOriginalFile = File.createTempFile("original-", ".temp"); // 임시 파일 생성
-    FileUtils.copyInputStreamToFile(originalFile, copyOriginalFile); // 생성된 임시 파일에 원본 파일(originalFile) 복사
+    File copyOriginalFile = null;
+    try {
+      copyOriginalFile = File.createTempFile("original-", ".temp"); // 임시 파일 생성
+      FileUtils.copyInputStreamToFile(originalFile, copyOriginalFile); // 생성된 임시 파일에 원본 파일 복사
+    } catch (IOException e) {
+      throw new IllegalArgumentException("원본 이미지 복사 실패: " + e.getMessage());
+    }
     return copyOriginalFile;
   }
 
@@ -85,15 +90,16 @@ public class ImageService {
   }
 
   // WebP 파일 업로드
-  @SneakyThrows
   private void uploadWebPImage(String originalFileName, File webpFile) {
     try (InputStream webpInputStream = new FileInputStream(webpFile)) {
       minioClient.putObject(PutObjectArgs.builder()
               .bucket(uploadBucket)
-              .object(originalFileName.replace(".png", ".webp").replace(".jpg", ".webp"))
+              .object(FilenameUtils.getBaseName(originalFileName) + ".webp")
               .stream(webpInputStream, webpFile.length(), -1)
               .contentType("image/webp")
               .build());
+    } catch (Exception e) {
+      throw new IllegalArgumentException("WebP 파일 업로드 실패: " + e.getMessage());
     }
   }
 
@@ -101,7 +107,10 @@ public class ImageService {
   private void cleanupTemporaryFiles(File... files) {
     for (File file : files) {
       if (file.exists()) {
-        file.delete();
+        boolean deleted = file.delete();
+        if (!deleted) {
+          throw new IllegalArgumentException("임시 파일 삭제 실패: " + file.getAbsolutePath());
+        }
       }
     }
   }
