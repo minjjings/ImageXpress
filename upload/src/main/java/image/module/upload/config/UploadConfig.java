@@ -1,4 +1,4 @@
-package image.module.upload;
+package image.module.upload.config;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;

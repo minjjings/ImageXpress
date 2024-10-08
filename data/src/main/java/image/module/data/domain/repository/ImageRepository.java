@@ -1,6 +1,6 @@
-package image.module.upload;
+package image.module.data.domain.repository;
 
-import image.module.upload.domain.Image;
+import image.module.data.domain.Image;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
