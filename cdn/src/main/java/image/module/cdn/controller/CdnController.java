@@ -1,5 +1,6 @@
 package image.module.cdn.controller;
 
+import image.module.cdn.dto.ImageResponseDto;
 import image.module.cdn.service.CdnService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -23,6 +24,16 @@ public class CdnController {
     public ResponseEntity<?> getImage(HttpServletRequest request) {
         try {
             return cdnService.getImage(request.getRequestURL().toString());
+        } catch (IOException e) {
+            return new ResponseEntity<>("IOException 발생", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/download/{cdnImageName}")
+    public ResponseEntity<?> downloadImage(HttpServletRequest request) {
+        try {
+            ImageResponseDto imageResponseDto = cdnService.downloadImage(request.getRequestURL().toString());
+            return new ResponseEntity<>(imageResponseDto.getImageBytes(), imageResponseDto.getHeaders(), HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>("IOException 발생", HttpStatus.NOT_FOUND);
         }
