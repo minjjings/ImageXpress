@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,21 +32,10 @@ public class CdnService {
     public static final String FILE_PATH = "cdn/src/main/resources/static/images/";
 
 
-    public ResponseEntity<byte[]> getImage(String cdnUrl) throws IOException {
+    public ImageResponseDto getImage(String cdnUrl) throws IOException {
         String fileLocation = checkFileExist(cdnUrl);
 
-        byte[] imageBytes = getByteImage(fileLocation);
-
-        // 파일의 MIME 타입을 동적으로 추출
-        String imageType = getImageType(fileLocation);
-
-        // 응답 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(imageType));
-
-        // 이미지 데이터를 ResponseEntity로 반환
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-
+        return getImageInfo(fileLocation);
     }
 
     public ImageResponseDto downloadImage(String cdnUrl) throws IOException {
@@ -58,7 +45,7 @@ public class CdnService {
         ImageResponseDto imageResponseDto = getImageInfo(fileLocation);
 
         imageResponseDto.getHeaders().setContentDispositionFormData("attachment", getOriginalNameByPath(fileLocation));
-        
+
         return imageResponseDto;
     }
 
@@ -127,13 +114,15 @@ public class CdnService {
         return saveImageInCdn(imageDto.getImageStream(), saveFileName);
     }
 
+    // 저장된 이미지 이름에서 원본 이미지 뽑는 메서드
     private String getOriginalNameByPath(String fileLocation) {
-        // FILE_PATH/originalName_cdnImageName(확장자 포함)
+        // FILE_PATH/originalName_cdnImageName.확장자 - FILE_PATH/
         String removeFilePath = fileLocation.replace(FILE_PATH, "");
 
         int startIndex = removeFilePath.indexOf('_');
         int endIndex = removeFilePath.indexOf('.');
 
+        // originalName_cdnImageName.확장자 - _cdnImageName
         return removeFilePath.substring(0, startIndex) + removeFilePath.substring(endIndex);
     }
 }

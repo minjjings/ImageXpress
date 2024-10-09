@@ -23,7 +23,8 @@ public class CdnController {
     @GetMapping("/{cdnImageName}")
     public ResponseEntity<?> getImage(HttpServletRequest request) {
         try {
-            return cdnService.getImage(request.getRequestURL().toString());
+            ImageResponseDto imageResponseDto = cdnService.getImage(request.getRequestURL().toString());
+            return new ResponseEntity<>(imageResponseDto.getImageBytes(), imageResponseDto.getHeaders(), HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>("IOException 발생", HttpStatus.NOT_FOUND);
         }
