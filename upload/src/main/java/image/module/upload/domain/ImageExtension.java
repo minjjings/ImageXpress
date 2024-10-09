@@ -21,11 +21,12 @@ public enum ImageExtension {
 
     public static Optional<ImageExtension> findByKey(String key) {
         return Arrays.stream(ImageExtension.values())
-                .filter(extension -> extension.key.contains(key))
+                .filter(extension -> extension.key.stream()
+                        .anyMatch(k -> k.equalsIgnoreCase(key)))
                 .findAny();
     }
     
     public String getKey() {
-        return this.key.get(0);
+        return this.key.isEmpty() ? "" : this.key.get(0);
     }
 }
