@@ -21,22 +21,28 @@ public class CdnController {
     private final CdnService cdnService;
 
     @GetMapping("/{cdnImageName}")
-    public ResponseEntity<?> getImage(HttpServletRequest request) {
+    public ResponseEntity<byte[]> getImage(HttpServletRequest request) {
         try {
             ImageResponseDto imageResponseDto = cdnService.getImage(request.getRequestURL().toString());
-            return new ResponseEntity<>(imageResponseDto.getImageBytes(), imageResponseDto.getHeaders(), HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .headers(imageResponseDto.getHeaders())
+                    .body(imageResponseDto.getImageBytes());
         } catch (IOException e) {
-            return new ResponseEntity<>("IOException 발생", HttpStatus.NOT_FOUND);
+            log.error("이미지 조회에서 IOException 발생");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/download/{cdnImageName}")
-    public ResponseEntity<?> downloadImage(HttpServletRequest request) {
+    public ResponseEntity<byte[]> downloadImage(HttpServletRequest request) {
         try {
             ImageResponseDto imageResponseDto = cdnService.downloadImage(request.getRequestURL().toString());
-            return new ResponseEntity<>(imageResponseDto.getImageBytes(), imageResponseDto.getHeaders(), HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .headers(imageResponseDto.getHeaders())
+                    .body(imageResponseDto.getImageBytes());
         } catch (IOException e) {
-            return new ResponseEntity<>("IOException 발생", HttpStatus.NOT_FOUND);
+            log.error("이미지 다운로드에서 IOException 발생");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }
