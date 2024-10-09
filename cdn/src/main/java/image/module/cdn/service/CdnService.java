@@ -119,6 +119,10 @@ public class CdnService {
         int startIndex = removeFilePath.indexOf('_');
         int endIndex = removeFilePath.indexOf('.');
 
+        if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+            throw new IllegalArgumentException("잘못된 이미지 이름 형식 입니다: " + removeFilePath);
+        }
+
         // originalName_cdnImageName.확장자 - _cdnImageName
         return removeFilePath.substring(0, startIndex) + removeFilePath.substring(endIndex);
     }
