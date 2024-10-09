@@ -31,10 +31,8 @@ public class CdnService {
     public static final String PART_CDN_URL = "http://localhost:" + port + "/cdn/";
     public static final String FILE_PATH = "cdn/src/main/resources/static/images/";
 
-
     public ImageResponseDto getImage(String cdnUrl) throws IOException {
         String fileLocation = checkFileExist(cdnUrl);
-
         return getImageInfo(fileLocation);
     }
 
@@ -59,10 +57,9 @@ public class CdnService {
 
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(imageResponseDto.getImageType()));
+        headers.setContentType(MediaType.parseMediaType(imageType));
 
         imageResponseDto.setImageBytes(imageBytes);
-        imageResponseDto.setImageType(imageType);
         imageResponseDto.setHeaders(headers);
 
         return imageResponseDto;
