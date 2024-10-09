@@ -29,7 +29,8 @@ public class CdnService {
     @Value("${server.port}")
     private String port;
 
-    public static final String FILE_PATH = "cdn/src/main/resources/static/images/";
+    @Value("${cdn.image.path}")
+    public String filePath;
 
     public String getPartCdnUrl() {
         return "http://localhost:" + port + "/cdn/";
@@ -93,7 +94,7 @@ public class CdnService {
     // 이미지 저장
     private String saveImageInCdn(InputStream imageStream, String fileName) throws IOException {
         // 저장 경로 생성
-        Path uploadPath = Paths.get(FILE_PATH);
+        Path uploadPath = Paths.get(filePath);
 
         // 파일 경로
         Path filePath = uploadPath.resolve(fileName);
@@ -118,7 +119,7 @@ public class CdnService {
     // 저장된 이미지 이름에서 원본 이미지 뽑는 메서드
     private String getOriginalNameByPath(String fileLocation) {
         // FILE_PATH/originalName_cdnImageName.확장자 - FILE_PATH/
-        String removeFilePath = fileLocation.replace(FILE_PATH, "");
+        String removeFilePath = fileLocation.replace(filePath, "");
 
         int startIndex = removeFilePath.indexOf('_');
         int endIndex = removeFilePath.indexOf('.');

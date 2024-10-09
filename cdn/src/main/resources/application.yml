@@ -9,6 +9,10 @@ spring:
 server:
   port: 19096
 
+cdn:
+  image:
+    path: "cdn/src/main/resources/static/images/"
+
 resilience4j:
   circuitbreaker:
     configs:
