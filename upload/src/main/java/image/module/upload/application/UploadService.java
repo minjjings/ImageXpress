@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,13 +40,13 @@ public class UploadService {
         String originalName = file.getOriginalFilename();
 
         // 파일 이름이 존재하지 않는 경우
-        if(originalName == null) throw new Exception("잘못된 파일입니다.");
+        if(originalName == null) throw new IllegalArgumentException("잘못된 파일입니다.");
 
         // test_image.jpg > [0] -> test_image, [1] -> jpg
         String[] fileInfos = FileUtil.splitFileName(file.getOriginalFilename());
 
         // ImageExtension Enum 에 설정한 확장자가 아닌 경우는 업로드 하지 않음
-        ImageExtension.findByKey(fileInfos[1])
+        ImageExtension extension = ImageExtension.findByKey(fileInfos[1])
                 .orElseThrow(() -> new Exception("지원하지 않는 확장자 입니다."));
 
         int imageWidth = 0;
@@ -54,12 +56,12 @@ public class UploadService {
             imageWidth = bufferedImage.getWidth();
             imageHeight = bufferedImage.getHeight();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException 발생: 이미지 입력 스트림을 읽을 수 없습니다.", e);
         }
 
         ImageRequest imageRequest = ImageRequest.create(
                 originalName,
-                fileInfos[1],
+                extension.getKey(),
                 cdnBaseUrl,
                 imageWidth,
                 imageHeight
@@ -79,10 +81,13 @@ public class UploadService {
                             .contentType(file.getContentType())
                             .build()
             );
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e){
+            log.error("IOException 발생: 이미지 입력 스트림을 읽을 수 없습니다.", e);
+        }
+        catch (Exception e) {
+            log.error("Exception 발생: ", e);
         }
 
-        kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
+        //kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
     }
 }

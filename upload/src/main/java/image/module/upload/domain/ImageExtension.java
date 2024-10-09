@@ -7,9 +7,10 @@ import lombok.Getter;
 
 @Getter
 public enum ImageExtension {
-		// 파일 업로드시 파일의 확장자를 제한하기 위해 & 미디어 타입으로 치환하기 위해 작성합니다.
-    JPG(List.of("jpg", "jpeg"), "image/jpeg"),
-    PNG(List.of("png"), "image/png");
+
+    JPG(List.of("jpg", "JPG"), "image/jpeg"),
+    JPEG(List.of("jpeg", "JPEG"), "image/jpeg"),
+    PNG(List.of("png", "PNG"), "image/png");
 
     final List<String> key;
     final String contentType;
@@ -21,8 +22,7 @@ public enum ImageExtension {
 
     public static Optional<ImageExtension> findByKey(String key) {
         return Arrays.stream(ImageExtension.values())
-                .filter(extension -> extension.key.stream()
-                        .anyMatch(k -> k.equalsIgnoreCase(key)))
+                .filter(extension -> extension.key.contains(key))
                 .findAny();
     }
     
