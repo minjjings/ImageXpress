@@ -25,11 +25,15 @@ public class CdnService {
     private final RedisService redisService;
     private final UrlServiceClient urlServiceClient;
 
+    // @Value는 static 변수에 주입되지 않는다고 함
     @Value("${server.port}")
-    private static String port;
+    private String port;
 
-    public static final String PART_CDN_URL = "http://localhost:" + port + "/cdn/";
     public static final String FILE_PATH = "cdn/src/main/resources/static/images/";
+
+    public String getPartCdnUrl() {
+        return "http://localhost:" + port + "/cdn/";
+    }
 
     public ImageResponseDto getImage(String cdnUrl) throws IOException {
         String fileLocation = checkFileExist(cdnUrl);
@@ -105,7 +109,7 @@ public class CdnService {
         ImageDto imageDto = urlServiceClient.fetchImage(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
 
         // cdn에 저장할 이미지 이름 생성
-        String cdnImageName = cdnUrl.replace(PART_CDN_URL, "");
+        String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
         String saveFileName = imageDto.getFileName() + "_" + cdnImageName;
 
         return saveImageInCdn(imageDto.getImageStream(), saveFileName);
