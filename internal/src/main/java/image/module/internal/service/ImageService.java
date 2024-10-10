@@ -41,7 +41,7 @@ public class ImageService {
     // 1. 이미지 다운로드
     InputStream originalFile = downloadImage(message);
     // 2. 원본 이미지 복사
-    File copyOriginalFile = copyOriginalImage(originalFile);
+    File copyOriginalFile = copyOriginalImage(originalFile,extension);
     // 3. 복사 이미지를 300x300 리사이징
     File resizedFile = resizeImage(copyOriginalFile, 300, 300);
     // 4. 리사이즈된 이미지 WebP로 변환
@@ -97,10 +97,10 @@ public class ImageService {
   }
 
   // 원본 이미지 복사
-  private File copyOriginalImage(InputStream originalFile) {
+  private File copyOriginalImage(InputStream originalFile, String extension) {
     File copyOriginalFile = null;
     try {
-      copyOriginalFile = File.createTempFile("copy-", ".png"); // 임시 파일 생성
+      copyOriginalFile = File.createTempFile("copy-", "." + extension); // 임시 파일 생성
       FileUtils.copyInputStreamToFile(originalFile, copyOriginalFile); // 생성된 임시 파일에 원본 파일 복사
     } catch (IOException e) {
       throw new IllegalArgumentException("원본 이미지 복사 실패: " + e.getMessage());
