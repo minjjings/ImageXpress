@@ -73,8 +73,8 @@ public class Image extends BaseEntity {
                 .build();
     }
 
-    public void updateOriginalFileUUID(UUID id){
-        this.originalFileUUID = id;
+    public void assignOriginalFileUUID(){
+        this.originalFileUUID = this.id;
     }
 
 }

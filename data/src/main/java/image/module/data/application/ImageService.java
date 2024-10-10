@@ -19,7 +19,7 @@ public class ImageService {
     public ImageResponse createImage(ImageRequest request){
         Image image = Image.create(request);
         imageRepository.save(image);
-        image.updateOriginalFileUUID(image.getId());
+        image.assignOriginalFileUUID();
         return ImageResponse.fromEntity(image);
     }
 
