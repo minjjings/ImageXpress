@@ -42,7 +42,7 @@ public class ImageService {
   // 전체 이미지 처리 로직을 관리하는 메서드
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
   public void listen(String message) {
-
+ // jpg
     // 0. 확장자 추출
     String extension = extractExtensionFromMinio(message);
     // 1. 이미지 다운로드
@@ -50,13 +50,14 @@ public class ImageService {
     // 2. 원본 이미지 복사
     File copyOriginalFile = copyOriginalImage(originalFile,extension);
     // 3. 복사 이미지를 300x300 리사이징
+    // TODO 나중에 width, height 값을 받아서 처리
     File resizedFile = resizeImage(copyOriginalFile, 300, 300);
     // 4. 리사이즈된 이미지 WebP로 변환
     File webpFile = convertToWebp(message, resizedFile);
     // 5. WebP 이미지 업로드
     uploadWebPImage(webpFile);
     // 6. 업로드 된 WebP 이미지 DB 저장
-    ImageRequest imageRequest = ImageRequest.create(webpFile, extension, cdnBaseUrl);
+    ImageRequest imageRequest = ImageRequest.create(webpFile, extension, 300, 300, cdnBaseUrl);
     dataClient.uploadResizeImage(imageRequest);
     // 7. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, resizedFile, webpFile);

@@ -25,27 +25,16 @@ public class ImageRequest {
     private Integer width;
     private Integer height;
 
-    public static ImageRequest create(File webpFile, String messageExtension, String cdnBaseUrl) {
+    public static ImageRequest create(File webpFile, String messageExtension, int width, int height, String cdnBaseUrl) {
         String storedFileName = webpFile.getName();
         String cdnUrl = cdnBaseUrl + "/" + UUID.randomUUID() + "." + messageExtension;
-
-        // 6. width, height 구하기
-        int imageWidth = 0;
-        int imageHeight = 0;
-        try {
-            BufferedImage bufferedImage = ImageIO.read(webpFile);
-            imageWidth = bufferedImage.getWidth();
-            imageHeight = bufferedImage.getHeight();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return ImageRequest.builder()
                 .storedFileName(storedFileName)
                 .cdnUrl(cdnUrl)
                 .fileType("webp")
-                .width(imageWidth)
-                .height(imageHeight)
+                .width(width)
+                .height(height)
                 .build();
     }
 }

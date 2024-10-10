@@ -5,10 +5,7 @@ import image.module.data.application.ImageService;
 import image.module.data.domain.Image;
 import image.module.data.domain.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +17,12 @@ public class ImageController {
     @PostMapping("/image/upload")
     public ImageResponse uploadImage(@RequestBody ImageRequest imageRequest){
         return imageService.createImage(imageRequest);
+    }
+
+    @PostMapping("/image/upload/resize")
+    void uploadResizeImage(
+            @RequestBody ImageRequest imageRequest
+    ){
+        imageService.uploadResizeImage(imageRequest);
     }
 }

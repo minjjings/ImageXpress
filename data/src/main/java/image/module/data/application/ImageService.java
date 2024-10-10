@@ -15,4 +15,27 @@ public class ImageService {
         Image image = Image.create(request);
         return ImageResponse.fromEntity(imageRepository.save(image));
     }
+
+
+    public void uploadResizeImage(ImageRequest imageRequest) {
+        // UUID 추출 / _ 가로 x 세로 제거
+        String storedFileName = extractOriginalFileName(imageRequest.getStoredFileName());
+
+        Image image = imageRepository.findByStoredFileName(storedFileName).orElseThrow(
+                () -> new IllegalArgumentException("저장된 파일 이름을 찾을 수 없습니다: " + storedFileName)
+        );
+
+       imageRepository.save(Image.createResize(image, imageRequest));
+    }
+
+    // _가로 x 세로 제거
+    private String extractOriginalFileName(String storedFileName) {
+        // 마지막 언더바(_)의 인덱스 찾기
+        int lastIndex = storedFileName.lastIndexOf('_');
+        // 마지막 언더바 이전의 부분 추출
+        if (lastIndex != -1) {
+            return storedFileName.substring(0, lastIndex);
+        }
+        return storedFileName; // 언더바가 없을 경우 원본 그대로 반환
+    }
 }
