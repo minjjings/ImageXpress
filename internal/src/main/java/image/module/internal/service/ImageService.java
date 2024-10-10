@@ -2,6 +2,8 @@ package image.module.internal.service;
 
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
+import image.module.internal.DataClient;
+import image.module.internal.dto.ImageRequest;
 import io.minio.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +28,16 @@ public class ImageService {
   @Value("${minio.buckets.uploadBucket}")
   private String uploadBucket;
 
-  public ImageService(MinioClient minioClient) {
-    this.minioClient = minioClient;
-  }
+  @Value("${cdn-server.url}")
+  private String cdnBaseUrl;
 
   private final MinioClient minioClient;
+  private final DataClient dataClient;
+
+  public ImageService(MinioClient minioClient, DataClient dataClient) {
+    this.minioClient = minioClient;
+    this.dataClient = dataClient;
+  }
 
   // 전체 이미지 처리 로직을 관리하는 메서드
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
@@ -48,7 +55,10 @@ public class ImageService {
     File webpFile = convertToWebp(message, resizedFile);
     // 5. WebP 이미지 업로드
     uploadWebPImage(webpFile);
-    // 6. 임시 파일 삭제
+    // 6. 업로드 된 WebP 이미지 DB 저장
+    ImageRequest imageRequest = ImageRequest.create(webpFile, extension, cdnBaseUrl);
+    dataClient.uploadResizeImage(imageRequest);
+    // 7. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, resizedFile, webpFile);
   }
 
