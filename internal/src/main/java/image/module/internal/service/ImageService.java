@@ -2,9 +2,8 @@ package image.module.internal.service;
 
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
@@ -37,6 +36,8 @@ public class ImageService {
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
   public void listen(String message) {
 
+    // 0. 확장자 추출
+    String extension = extractExtensionFromMinio(message);
     // 1. 이미지 다운로드
     InputStream originalFile = downloadImage(message);
     // 2. 원본 이미지 복사
@@ -49,6 +50,36 @@ public class ImageService {
     uploadWebPImage(webpFile);
     // 6. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, resizedFile, webpFile);
+  }
+
+  // 확장자 추출 메서드
+  private String extractExtensionFromMinio(String fileName) {
+    try {
+      // MinIO에서 객체의 메타데이터 가져오기
+      StatObjectResponse statObject = minioClient.statObject(
+              StatObjectArgs.builder()
+                      .bucket(downloadBucket)    // 버킷 이름
+                      .object(fileName)          // 치환된 이미지 객체 이름
+                      .build()
+      );
+
+      // Content-Type 출력
+      String contentType = statObject.contentType();
+
+      // 확장자 결정
+      String extension;
+      if ("image/jpeg".equals(contentType) || "image/jpg".equals(contentType)) {
+        extension = "jpg";
+      } else if ("image/png".equals(contentType)) {
+        extension = "png";
+      } else {
+        throw new IllegalArgumentException("지원되지 않는 파일 형식입니다: " + contentType);
+      }
+      return extension;
+
+    } catch (Exception e) {
+      throw new RuntimeException("확장자 추출 실패: " + e.getMessage(), e);
+    }
   }
 
   // 이미지 다운로드
