@@ -18,7 +18,9 @@ public class ImageService {
     @Transactional
     public ImageResponse createImage(ImageRequest request){
         Image image = Image.create(request);
-        return ImageResponse.fromEntity(imageRepository.save(image));
+        imageRepository.save(image);
+        image.updateOriginalFileUUID(image.getId());
+        return ImageResponse.fromEntity(image);
     }
 
     public ImageResponse getImageName(UUID id) {

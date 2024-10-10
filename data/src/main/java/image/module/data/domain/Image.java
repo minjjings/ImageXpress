@@ -50,11 +50,6 @@ public class Image extends BaseEntity {
     @Column(name = "original_file_uuid")
     private UUID originalFileUUID;
 
-//    @PrePersist
-//    public void setOriginalFileUUID() {
-//         this.originalFileUUID = this.id;
-//    }
-
     public static Image create(ImageRequest request){
         return Image.builder()
                 .originalFileName(request.getOriginalFileName())
@@ -63,7 +58,6 @@ public class Image extends BaseEntity {
                 .fileType(request.getFileType())
                 .width(request.getWidth())
                 .height(request.getHeight())
-                .originalFileUUID(request.getOriginalFileUUID())
                 .build();
     }
 
@@ -77,6 +71,10 @@ public class Image extends BaseEntity {
                 .height(imageRequest.getHeight())
                 .originalFileUUID(image.getId())
                 .build();
+    }
+
+    public void updateOriginalFileUUID(UUID id){
+        this.originalFileUUID = id;
     }
 
 }
