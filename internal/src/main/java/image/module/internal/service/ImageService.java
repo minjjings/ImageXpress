@@ -46,7 +46,7 @@ public class ImageService {
     // 4. 리사이즈된 이미지 WebP로 변환
     File webpFile = convertToWebp(message, resizedFile);
     // 5. WebP 이미지 업로드
-    uploadWebPImage(message, webpFile);
+    uploadWebPImage(webpFile);
     // 6. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, resizedFile, webpFile);
   }
@@ -92,38 +92,29 @@ public class ImageService {
     }
     return resizedFile;
   }
-  // 이미지 비율 유지 ex) 1000x500 -> 300 x 150
-//  private File resizeImage(File originalFile, int width, int height) {
-//    File resizedFile = new File(originalFile.getParent(), "resized-" + originalFile.getName());
-//    try {
-//      // Thumbnails 라이브러리를 사용하여 이미지 리사이징
-//      Thumbnails.of(originalFile)
-//              .size(width, height)
-//              .toFile(resizedFile); // 리사이즈된 이미지를 저장
-//    } catch (IOException e) {
-//      throw new IllegalArgumentException("이미지 리사이징 실패: " + e.getMessage());
-//    }
-//    return resizedFile;
-//  }
 
   // 복사 이미지 WebP 파일로 변환
   // 손실 압축
+  // TODO 이미지 가로 세로 받을 경우 최종 파일 이름 수정
   public File convertToWebp(String fileName, File copyOriginalFile) {
     try {
+      String uploadFileName = FilenameUtils.getBaseName(fileName) + "_300x300"; // MINIO에 업로드할 최종 파일 이름
+      File outputFile = new File(copyOriginalFile.getParent(), uploadFileName);
+
       return ImmutableImage.loader()
               .fromFile(copyOriginalFile)
-              .output(WebpWriter.DEFAULT, new File(copyOriginalFile.getParent(), FilenameUtils.getBaseName(fileName) + ".webp"));
+              .output(WebpWriter.DEFAULT, outputFile);
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage());
     }
   }
 
   // WebP 파일 업로드
-  private void uploadWebPImage(String originalFileName, File webpFile) {
+  private void uploadWebPImage(File webpFile) {
     try (InputStream webpInputStream = new FileInputStream(webpFile)) {
       minioClient.putObject(PutObjectArgs.builder()
               .bucket(uploadBucket)
-              .object(FilenameUtils.getBaseName(originalFileName) + ".webp")
+              .object(webpFile.getName())
               .stream(webpInputStream, webpFile.length(), -1)
               .contentType("image/webp")
               .build());
