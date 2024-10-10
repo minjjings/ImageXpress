@@ -2,10 +2,10 @@ package image.module.data.presentation;
 
 import image.module.data.application.ImageResponse;
 import image.module.data.application.ImageService;
-import image.module.data.domain.Image;
-import image.module.data.domain.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +19,25 @@ public class ImageController {
         return imageService.createImage(imageRequest);
     }
 
+    //fetch -> 객체 조회
+    @GetMapping("/image/getImageName")
+    public ImageResponse getImageName(@RequestParam UUID id){
+
+        ImageResponse getImageName = imageService.getImageName(id);
+
+        return getImageName;
+    }
+
+    //fetch -> cdn 주소로 객체 조회
+    @GetMapping("/image/getCDNImageName")
+    public ImageResponse getCDNImageName(@RequestParam String cdnUrl){
+
+        ImageResponse getCDNImageName = imageService.getCDNImageName(cdnUrl);
+
+        return getCDNImageName;
+    }
+
+    // 리사이즈 이미지 DB 저장
     @PostMapping("/image/upload/resize")
     void uploadResizeImage(
             @RequestBody ImageRequest imageRequest
