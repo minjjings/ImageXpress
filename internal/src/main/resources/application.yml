@@ -46,3 +46,9 @@ minio:
   buckets:
     downloadBucket: mybucket
     uploadBucket: update-bucket  # 수정된 부분
+
+data-server:
+  url: localhost:19095
+
+cdn-server:
+  url: http://localhost:19096/cdn

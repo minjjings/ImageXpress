@@ -88,6 +88,6 @@ public class UploadService {
             log.error("Exception 발생: ", e);
         }
 
-        //kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
+        kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
     }
 }

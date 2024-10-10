@@ -4,8 +4,8 @@ import image.module.data.application.ImageResponse;
 import image.module.data.application.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +35,13 @@ public class ImageController {
         ImageResponse getCDNImageName = imageService.getCDNImageName(cdnUrl);
 
         return getCDNImageName;
+    }
+
+    // 리사이즈 이미지 DB 저장
+    @PostMapping("/image/upload/resize")
+    void uploadResizeImage(
+            @RequestBody ImageRequest imageRequest
+    ){
+        imageService.uploadResizeImage(imageRequest);
     }
 }
