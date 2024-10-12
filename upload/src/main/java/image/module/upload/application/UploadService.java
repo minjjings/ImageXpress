@@ -7,6 +7,9 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -35,9 +40,13 @@ public class UploadService {
     @Value("${cdn-server.url}")
     private String cdnBaseUrl;
 
-    public CompletableFuture<ImageResponse> saveImageMetadata(MultipartFile file) {
-        return CompletableFuture.supplyAsync(() -> {
+    //이미지 데이터 db 저장
+    public CompletableFuture<Void> saveImageMetadata(MultipartFile file) {
+        return CompletableFuture.runAsync(() -> {
             try {
+                // 파일 데이터를 미리 메모리에 저장
+                byte[] fileBytes = file.getBytes();
+
                 // 업로드 파일명을 불러옴
                 String originalName = file.getOriginalFilename();
 
@@ -52,7 +61,7 @@ public class UploadService {
                         .orElseThrow(() -> new Exception("지원하지 않는 확장자 입니다."));
 
                 // 이미지 크기 확인
-                BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+                BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
                 int imageWidth = bufferedImage.getWidth();
                 int imageHeight = bufferedImage.getHeight();
 
@@ -63,7 +72,13 @@ public class UploadService {
                         imageWidth,
                         imageHeight
                 );
-                return dataService.uploadImage(imageRequest);
+
+                // 메타데이터 저장
+                ImageResponse imageResponse = dataService.uploadImage(imageRequest);
+
+                // minio 이미지 업로드
+                uploadImage(new ByteArrayInputStream(fileBytes), file.getContentType(), imageResponse);
+
             } catch (Exception e) {
                 log.error("이미지 메타데이터 저장 중 오류 발생: ", e);
                 throw new RuntimeException(e);
@@ -71,24 +86,24 @@ public class UploadService {
         });
     }
 
-    // 이미지 업로드
-    public void uploadImage(MultipartFile file, ImageResponse image) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                minioClient.putObject(
-                        PutObjectArgs.builder()
-                                .bucket(bucketName)
-                                .object(image.getStoredFileName())
-                                .stream(file.getInputStream(), file.getSize(), -1)
-                                .contentType(file.getContentType())
-                                .build()
-                );
-                kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
-            } catch (Exception e) {
-                log.error("이미지 업로드 중 오류 발생: ", e);
-            }
-        });
+    //이미지 업로드
+    public void uploadImage(InputStream fileInputStream, String contentType, ImageResponse image) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(image.getStoredFileName())
+                            .stream(fileInputStream, fileInputStream.available(), -1)
+                            .contentType(contentType)
+                            .build()
+            );
+            kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
+        } catch (Exception e) {
+            log.error("이미지 업로드 중 오류 발생: ", e);
+        }
+
     }
+
 
 //    @SneakyThrows
 //    public ResponseEntity<byte[]> getImage(String cdnUrl) {
