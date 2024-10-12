@@ -44,8 +44,11 @@ public class UploadService {
     public CompletableFuture<Void> saveImageMetadata(MultipartFile file) {
         return CompletableFuture.runAsync(() -> {
             try {
-                // 파일 데이터를 미리 메모리에 저장
+                // 파일 데이터를 메모리에 저장
                 byte[] fileBytes = file.getBytes();
+
+                // 파일 데이터를 기반으로 InputStream 생성
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileBytes);
 
                 // 업로드 파일명을 불러옴
                 String originalName = file.getOriginalFilename();
@@ -61,7 +64,7 @@ public class UploadService {
                         .orElseThrow(() -> new Exception("지원하지 않는 확장자 입니다."));
 
                 // 이미지 크기 확인
-                BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
+                BufferedImage bufferedImage = ImageIO.read(byteArrayInputStream);
                 int imageWidth = bufferedImage.getWidth();
                 int imageHeight = bufferedImage.getHeight();
 
@@ -76,7 +79,7 @@ public class UploadService {
                 // 메타데이터 저장
                 ImageResponse imageResponse = dataService.uploadImage(imageRequest);
 
-                // minio 이미지 업로드
+                // 새롭게 InputStream을 생성하여 minio에 이미지 업로드
                 uploadImage(new ByteArrayInputStream(fileBytes), file.getContentType(), imageResponse);
 
             } catch (Exception e) {
