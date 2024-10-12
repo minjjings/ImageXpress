@@ -43,13 +43,13 @@ public class UploadController {
         }
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<byte[]> getImage(HttpServletRequest request) {
-        return uploadService.getImage(request.getRequestURL().toString());
-    }
-
-    @GetMapping("/downloadTest")
-    public ResponseEntity<byte[]> downloadImage(HttpServletRequest request) {
-        return uploadService.downloadImage(request.getRequestURL().toString());
-    }
+//    @GetMapping("/test")
+//    public ResponseEntity<byte[]> getImage(HttpServletRequest request) {
+//        return uploadService.getImage(request.getRequestURL().toString());
+//    }
+//
+//    @GetMapping("/downloadTest")
+//    public ResponseEntity<byte[]> downloadImage(HttpServletRequest request) {
+//        return uploadService.downloadImage(request.getRequestURL().toString());
+//    }
 }
