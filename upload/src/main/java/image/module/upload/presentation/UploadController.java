@@ -29,16 +29,40 @@ public class UploadController {
     private final UploadService uploadService;
 
     @PostMapping
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+    public SseEmitter uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
+        SseEmitter emitter = new SseEmitter(600000L);
         try {
-            uploadService.saveImageMetadata(file);
+            emitter.send(SseEmitter.event().name("INIT").data("이미지 업로드가 시작되었습니다."));
+            // 비동기로 처리되는 이미지 메타데이터 저장
+            uploadService.saveImageMetadata(file)
+                    .thenApply(result -> {
+                        try {
+                            // 반환된 결과(result)를 클라이언트로 전송
+                            emitter.send(SseEmitter.event().name("PROGRESS").data("이미지 업로드 완료: " + result));
+                            // 작업 완료 후 emitter 종료
+                            emitter.complete();
+                        } catch (IOException e) {
+                            emitter.completeWithError(e);
+                        }
+                        return result;
+                    })
+                    .exceptionally(e -> {
+                        try {
+                            // 오류 발생 시 클라이언트에 알림
+                            emitter.send(SseEmitter.event().name("ERROR").data("업로드 실패..."));
+                            emitter.completeWithError(e);
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
+                        return null;
+                    });
 
-            // 즉시 응답 반환
-            return ResponseEntity.ok("이미지 업로드가 시작되었습니다.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Upload failed: " + e.getMessage());
+            // 즉시 오류 발생 시 처리
+            emitter.send(SseEmitter.event().name("ERROR").data("업로드 실패..."));
+            emitter.completeWithError(e);
         }
+        return emitter;
     }
 
 //    @GetMapping("/test")

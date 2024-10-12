@@ -41,8 +41,8 @@ public class UploadService {
     private String cdnBaseUrl;
 
     //이미지 데이터 db 저장
-    public CompletableFuture<Void> saveImageMetadata(MultipartFile file) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<String> saveImageMetadata(MultipartFile file) {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 // 파일 데이터를 메모리에 저장
                 byte[] fileBytes = file.getBytes();
@@ -82,6 +82,7 @@ public class UploadService {
                 // 새롭게 InputStream을 생성하여 minio에 이미지 업로드
                 uploadImage(new ByteArrayInputStream(fileBytes), file.getContentType(), imageResponse);
 
+                return imageResponse.getOriginalFileUUID().toString();
             } catch (Exception e) {
                 log.error("이미지 메타데이터 저장 중 오류 발생: ", e);
                 throw new RuntimeException(e);
