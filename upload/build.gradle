@@ -41,7 +41,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
