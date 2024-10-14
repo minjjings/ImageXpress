@@ -83,7 +83,7 @@ public class UploadService {
                 uploadImage(new ByteArrayInputStream(fileBytes), file.getContentType(), imageResponse);
 
                 return imageResponse.getOriginalFileUUID().toString();
-            } catch (Exception e) {
+            } catch (Exception e) {//db 데이터 삭제?
                 log.error("이미지 메타데이터 저장 중 오류 발생: ", e);
                 throw new RuntimeException(e);
             }
@@ -91,8 +91,8 @@ public class UploadService {
     }
 
     //이미지 업로드
+    @SneakyThrows
     public void uploadImage(InputStream fileInputStream, String contentType, ImageResponse image) {
-        try {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
@@ -102,10 +102,6 @@ public class UploadService {
                             .build()
             );
             kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
-        } catch (Exception e) {
-            log.error("이미지 업로드 중 오류 발생: ", e);
-        }
-
     }
 
 
