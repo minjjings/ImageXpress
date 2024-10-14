@@ -23,8 +23,8 @@ public class RedisService {
 
     // 값을 Redis에서 가져오는 메서드
     public String getValue(String key) {
-//        String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
-//        redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
+        String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
+        redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
         return redisTemplate.opsForValue().get(key);
     }
 
