@@ -21,7 +21,7 @@ public class ImageController {
 
     //fetch -> 객체 조회
     @GetMapping("/image/getImageName")
-    public ImageResponse getImageName(@RequestParam UUID id){
+    public ImageResponse getImageName(@RequestParam("id") UUID id){
 
         ImageResponse getImageName = imageService.getImageName(id);
 
@@ -30,7 +30,7 @@ public class ImageController {
 
     //fetch -> cdn 주소로 객체 조회
     @GetMapping("/image/getCDNImageName")
-    public ImageResponse getCDNImageName(@RequestParam String cdnUrl){
+    public ImageResponse getCDNImageName(@RequestParam("cdnUrl") String cdnUrl){
 
         ImageResponse getCDNImageName = imageService.getCDNImageName(cdnUrl);
 

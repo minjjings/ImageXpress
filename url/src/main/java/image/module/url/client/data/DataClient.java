@@ -16,12 +16,12 @@ public interface DataClient extends DataService {
 
     //이미지 이름 조회
     @GetMapping("/image/getImageName")
-    ImageResponse getImageName(@RequestParam UUID id);
+    ImageResponse getImageName(@RequestParam("id") UUID id);
 
 
     //이미지 cdn -> 이름 조회
     @GetMapping("/image/getCDNImageName")
-    ImageResponse getCDNImageName(@RequestParam String cdnUrl);
+    ImageResponse getCDNImageName(@RequestParam("cdnUrl") String cdnUrl);
 
 
     }
