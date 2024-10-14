@@ -3,32 +3,21 @@ package image.module.url.controller;
 import image.module.url.client.data.DataService;
 import image.module.url.client.data.ImageResponse;
 import image.module.url.dto.ImageDto;
-import image.module.url.dto.ImageMetaDto;
-import image.module.url.dto.ImageResponseDto;
-import image.module.url.service.UrlService;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
-import java.util.Base64;
 import java.util.UUID;
 
 @Log4j2
@@ -53,55 +42,18 @@ public class UrlController {
     }
 
 
-    @GetMapping("/getImage")
-    public ResponseEntity<byte[]> getImage(@RequestParam("id") UUID id) {
-        try {
+    @GetMapping("/cdnUrl")
+    public String getImage(@RequestParam("id") UUID id) {
 
-            //1.UUID로 file name 조회
+            //1.UUID로 cdnURl 조회
 
             ImageResponse imageResponse =dataService.getImageName(id);
-            String fileName = imageResponse.getStoredFileName();
-            String fileType = imageResponse.getFileType();
-            log.info(imageResponse.getStoredFileName());
-            log.info(imageResponse.getFileType());
-
-            //2. minio 에서 data 조회
-
-            InputStream inputStream=minioClient.getObject(GetObjectArgs.builder()
-                            .bucket(downloadBucket)
-                            .object(fileName)
-                            .build());
+            String cdnUrl = imageResponse.getCdnUrl();
+            log.info(imageResponse.getCdnUrl());
 
 
-            // 파일 확장자 확인
-            String extension = fileType;
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            if ("webp".equalsIgnoreCase(extension)) {
-                // webp 이미지를 jpg로 변환
-                BufferedImage image = ImageIO.read(inputStream);
-                if (image == null) {
-                    throw new IOException("Unsupported image format or corrupted image");
-                }
-                ImageIO.write(image, "jpg", outputStream);  // JPG로 변환
-            } else {
-                // 변환하지 않고 그대로 반환
-                inputStream.transferTo(outputStream);
-            }
-
-            // MIME 타입 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType("webp".equalsIgnoreCase(extension) ?
-                    MediaType.IMAGE_JPEG : MediaType.parseMediaType("image/" + extension));
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(outputStream.toByteArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(("Error processing image: " + e.getMessage()).getBytes());
-        }
+            return cdnUrl;
     }
 
 
@@ -120,6 +72,7 @@ public class UrlController {
             }
 
             String fileName = imageResponse.getStoredFileName();
+            String fileType = imageResponse.getFileType();
             log.info("Stored file name: {}", fileName);
             log.info("File type: {}", imageResponse.getFileType());
 
@@ -138,8 +91,19 @@ public class UrlController {
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            // InputStream을 바이트 배열로 변환
-            inputStream.transferTo(outputStream);
+            //InputStream을 바이트 배열로 변환 및 이미지 형식에 따라 변환 처리
+            if("webp".equalsIgnoreCase(fileType)) {
+                //webp 이미지를 jpg로 변환
+                BufferedImage image = ImageIO.read(inputStream);
+                if(image == null) {
+                    throw new IOException("Unsupported image format or corrupted image");
+                }
+                ImageIO.write(image, "jpg", outputStream); //jpg로 변환
+            } else {
+                //변환하지 않고 그대로 반환
+                inputStream.transferTo(outputStream);
+            }
+
             byte[] imageBytes = outputStream.toByteArray();
 
             // 바이트 배열이 비어 있는지 확인
@@ -164,15 +128,6 @@ public class UrlController {
 
 
 
-
-    // 파일 확장자 가져오기
-    private String getFileExtension(String fileName) {
-        int lastIndexOfDot = fileName.lastIndexOf('.');
-        if (lastIndexOfDot == -1) {
-            return ""; // 확장자가 없으면 빈 문자열 반환
-        }
-        return fileName.substring(lastIndexOfDot + 1);
-    }
 
 
 

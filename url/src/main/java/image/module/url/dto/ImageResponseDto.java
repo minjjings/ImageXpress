@@ -2,7 +2,9 @@ package image.module.url.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
 
+@Getter
 @Data
 public class ImageResponseDto {
     @JsonProperty("fileName")
@@ -16,11 +18,4 @@ public class ImageResponseDto {
         this.imageData = imageData;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getImageData() {
-        return imageData;
-    }
 }
