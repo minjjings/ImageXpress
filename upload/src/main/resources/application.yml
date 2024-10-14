@@ -14,10 +14,10 @@ spring:
 server:
   port: 19092
 
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://localhost:19090/eureka/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
 
 minio:
   url: http://localhost:9000
