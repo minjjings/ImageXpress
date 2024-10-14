@@ -33,26 +33,19 @@ public class UploadController {
         SseEmitter emitter = new SseEmitter(600000L);
         try {
             emitter.send(SseEmitter.event().name("INIT").data("이미지 업로드가 시작되었습니다."));
-            // 비동기로 처리되는 이미지 메타데이터 저장
             uploadService.saveImageMetadata(file)
-                    .thenApply(result -> {
+                    .handle((result, ex) -> {
                         try {
-                            // 반환된 결과(result)를 클라이언트로 전송
-                            emitter.send(SseEmitter.event().name("SUCCESS").data("이미지 업로드 완료: " + result));
-                            // 작업 완료 후 emitter 종료
-                            emitter.complete();
+                            if (ex == null) {
+                                emitter.send(SseEmitter.event().name("SUCCESS").data("이미지 업로드 완료: " + result));
+                                emitter.complete();
+                            } else {
+                                emitter.send(SseEmitter.event().name("ERROR").data("업로드 실패..."));
+                                emitter.completeWithError(ex);
+                            }
                         } catch (IOException e) {
+                            log.error("IOException 발생", e);
                             emitter.completeWithError(e);
-                        }
-                        return result;
-                    })
-                    .exceptionally(e -> {
-                        try {
-                            // 오류 발생 시 클라이언트에 알림
-                            emitter.send(SseEmitter.event().name("ERROR").data("업로드 실패..."));
-                            emitter.completeWithError(e);
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
                         }
                         return null;
                     });

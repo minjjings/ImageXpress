@@ -3,12 +3,10 @@ package image.module.upload.application;
 import image.module.upload.util.FileUtil;
 import image.module.upload.domain.ImageExtension;
 import image.module.upload.infrastructure.DataService;
-import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
@@ -16,14 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -44,12 +36,6 @@ public class UploadService {
     public CompletableFuture<String> saveImageMetadata(MultipartFile file) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // 파일 데이터를 메모리에 저장
-                byte[] fileBytes = file.getBytes();
-
-                // 파일 데이터를 기반으로 InputStream 생성
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileBytes);
-
                 // 업로드 파일명을 불러옴
                 String originalName = file.getOriginalFilename();
 
@@ -64,7 +50,7 @@ public class UploadService {
                         .orElseThrow(() -> new Exception("지원하지 않는 확장자 입니다."));
 
                 // 이미지 크기 확인
-                BufferedImage bufferedImage = ImageIO.read(byteArrayInputStream);
+                BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
                 int imageWidth = bufferedImage.getWidth();
                 int imageHeight = bufferedImage.getHeight();
 
@@ -79,8 +65,7 @@ public class UploadService {
                 // 메타데이터 저장
                 ImageResponse imageResponse = dataService.uploadImage(imageRequest);
 
-                // 새롭게 InputStream을 생성하여 minio에 이미지 업로드
-                uploadImage(new ByteArrayInputStream(fileBytes), file.getContentType(), imageResponse);
+                uploadImage(file.getInputStream(), file.getSize(), file.getContentType(), imageResponse);
 
                 return imageResponse.getOriginalFileUUID().toString();
             } catch (Exception e) {//db 데이터 삭제?
@@ -92,12 +77,12 @@ public class UploadService {
 
     //이미지 업로드
     @SneakyThrows
-    public void uploadImage(InputStream fileInputStream, String contentType, ImageResponse image) {
+    public void uploadImage(InputStream fileInputStream, long size, String contentType, ImageResponse image) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
                             .object(image.getStoredFileName())
-                            .stream(fileInputStream, fileInputStream.available(), -1)
+                            .stream(fileInputStream, size, -1)
                             .contentType(contentType)
                             .build()
             );
