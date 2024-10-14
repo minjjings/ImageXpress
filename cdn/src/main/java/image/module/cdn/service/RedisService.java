@@ -1,5 +1,6 @@
 package image.module.cdn.service;
 
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,26 @@ public class RedisService {
     }
 
     // 값을 Redis에 저장하는 메서드
-    public void setValue(String key, String value) {
-        redisTemplate.opsForValue().set(key, value);
+    public void setValue(String key, String value, int cachingTime) {
+        redisTemplate.opsForValue().set(key + ":ttl", String.valueOf(cachingTime));
+        redisTemplate.opsForValue().set(key, value, cachingTime, TimeUnit.MINUTES);
     }
 
     // 값을 Redis에서 가져오는 메서드
     public String getValue(String key) {
+        String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
+        redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
         return redisTemplate.opsForValue().get(key);
+    }
+
+    // 값의 백업을 Redis에 저장하는 메서드
+    // 왜냐하면 TTL하면 value 값을 받아올 수 없음
+    public void setBackupValue(String key, String value) {
+        redisTemplate.opsForValue().set("backup_" + key, value);
+    }
+
+    // 값을 Redis에서 삭제하는 메서드
+    public void deleteKey(String key) {
+        redisTemplate.delete(key);
     }
 }

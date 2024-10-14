@@ -86,7 +86,6 @@ public class CdnService {
         String fileLocation = redisService.getValue(cdnUrl);
         if (fileLocation == null) {
             fileLocation = getImageAndSave(cdnUrl);
-            redisService.setValue(cdnUrl, fileLocation);
         }
         return fileLocation;
     }
@@ -113,7 +112,13 @@ public class CdnService {
         String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
         String saveFileName = imageDto.getFileName() + "_" + cdnImageName;
 
-        return saveImageInCdn(imageDto.getImageStream(), saveFileName);
+        String fileLocation = saveImageInCdn(imageDto.getImageStream(), saveFileName);
+
+        // TODO: FeignClient에서 추후 caching time 받아서 처리하도록 수정
+        redisService.setValue(cdnUrl, fileLocation, 1);
+        redisService.setBackupValue(cdnUrl, fileLocation);
+
+        return fileLocation;
     }
 
     // 저장된 이미지 이름에서 원본 이미지 뽑는 메서드
