@@ -116,6 +116,7 @@ public class CdnService {
 
         // TODO: FeignClient에서 추후 caching time 받아서 처리하도록 수정
         redisService.setValue(cdnUrl, fileLocation, 1);
+        redisService.setBackupValue(cdnUrl, fileLocation);
 
         return fileLocation;
     }

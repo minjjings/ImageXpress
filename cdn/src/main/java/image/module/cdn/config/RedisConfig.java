@@ -1,13 +1,23 @@
 package image.module.cdn.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
+
+    private final RedisConnectionFactory redisConnectionFactory;
+
+    public RedisConfig(RedisConnectionFactory redisConnectionFactory) {
+        this.redisConnectionFactory = redisConnectionFactory;
+    }
 
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
@@ -24,5 +34,20 @@ public class RedisConfig {
         template.setHashValueSerializer(stringRedisSerializer);
 
         return template;
+    }
+
+    @Bean
+    RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
+                                                 RedisExpirationListener listener) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(new MessageListenerAdapter(listener), new PatternTopic("__keyevent@*__:expired"));
+        return container;
+    }
+
+    // Redis keyspace notifications 활성화
+    @PostConstruct
+    public void enableKeyspaceNotifications() {
+        redisConnectionFactory.getConnection().setConfig("notify-keyspace-events", "Ex");
     }
 }
