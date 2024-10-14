@@ -38,7 +38,7 @@ public class UploadController {
                     .thenApply(result -> {
                         try {
                             // 반환된 결과(result)를 클라이언트로 전송
-                            emitter.send(SseEmitter.event().name("PROGRESS").data("이미지 업로드 완료: " + result));
+                            emitter.send(SseEmitter.event().name("SUCCESS").data("이미지 업로드 완료: " + result));
                             // 작업 완료 후 emitter 종료
                             emitter.complete();
                         } catch (IOException e) {
@@ -58,7 +58,6 @@ public class UploadController {
                     });
 
         } catch (Exception e) {
-            // 즉시 오류 발생 시 처리
             emitter.send(SseEmitter.event().name("ERROR").data("업로드 실패..."));
             emitter.completeWithError(e);
         }
