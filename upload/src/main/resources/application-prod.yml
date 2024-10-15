@@ -2,7 +2,7 @@ spring:
   application:
     name: upload
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_URL}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -17,13 +17,13 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:19090/eureka/
+      defaultZone: ${EUREKA_URL}
 
 minio:
-  url: http://localhost:9000
+  url: ${MINIO_URL}
   accessKey: minio
   secretKey: minioadmin
   bucket: mybucket
 
 cdn-server:
-  url: http://localhost:19096/cdn
+  url: ${CDN_URL}

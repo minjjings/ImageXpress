@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "data-service", url = "${data-server.url}")
+@FeignClient(name = "data")
 public interface DataClient extends DataService {
 
     @PostMapping("/image/upload")
