@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "fetch")
 public interface UrlServiceClient {
 
-    @GetMapping("/fetch/image")
+    @GetMapping(value = "/fetch/image")
     ImageDto fetchImage(@RequestParam("cdnUrl") String cdnUrl);
 }
