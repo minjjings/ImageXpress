@@ -1,6 +1,5 @@
 package image.module.cdn.dto;
 
-import java.io.InputStream;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class ImageDto {
 
-    private InputStream imageStream;
+    private byte[] imageStream;
     private String fileName;
 }

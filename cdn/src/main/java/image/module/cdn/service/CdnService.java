@@ -4,12 +4,12 @@ import image.module.cdn.client.UrlServiceClient;
 import image.module.cdn.dto.ImageDto;
 import image.module.cdn.dto.ImageResponseDto;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,15 +91,15 @@ public class CdnService {
     }
 
     // 이미지 저장
-    private String saveImageInCdn(InputStream imageStream, String fileName) throws IOException {
+    private String saveImageInCdn(byte[] imageBytes, String fileName) throws IOException {
         // 저장 경로 생성
         Path uploadPath = Paths.get(filePath);
 
         // 파일 경로
         Path filePath = uploadPath.resolve(fileName);
 
-        // InputStream을 파일로 복사하여 저장
-        Files.copy(imageStream, filePath);
+        // 이미지 저장
+        Files.write(filePath, imageBytes);
 
         return filePath.toString();
     }
@@ -107,6 +107,9 @@ public class CdnService {
     private String getImageAndSave(String cdnUrl) throws IOException {
         // fetch server에게 이미지 요청
         ImageDto imageDto = urlServiceClient.fetchImage(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
+        log.info("이미지 이름 " + imageDto.getFileName());
+
+        log.info("이미지 값 " + Arrays.toString(imageDto.getImageStream()));
 
         // cdn에 저장할 이미지 이름 생성
         String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
