@@ -3,6 +3,7 @@ package image.module.url.controller;
 import image.module.url.client.data.DataService;
 import image.module.url.client.data.ImageResponse;
 import image.module.url.dto.ImageDto;
+import image.module.url.service.UrlService;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import lombok.extern.log4j.Log4j2;
@@ -23,34 +24,34 @@ import java.util.UUID;
 public class UrlController {
 
     private final DataService dataService;
-    private final MinioClient minioClient;
+    private final UrlService urlService;
 
 
-    @Value("${minio.buckets.uploadBucket}")
-    private String uploadBucket;
-
-    @Value("${minio.buckets.downloadBucket}")
-    private String downloadBucket;
-
-
-    public UrlController(DataService dataService, MinioClient minioClient) {
+    public UrlController(DataService dataService, UrlService urlService) {
         this.dataService = dataService;
-        this.minioClient = minioClient;
+        this.urlService = urlService;
     }
 
 
     @GetMapping("/cdnUrl")
     public String getImage(@RequestParam("id") UUID id) {
 
-            //1.UUID로 cdnURl 조회
+        //1.UUID로 cdnURl 조회
 
-            ImageResponse imageResponse =dataService.getImageName(id);
-            String cdnUrl = imageResponse.getCdnUrl();
-            log.info(imageResponse.getCdnUrl());
+        ImageResponse imageResponse = dataService.getImageName(id);
+
+        // cdnUrl이 null인지 확인
+        if (imageResponse == null || imageResponse.getCdnUrl() == null) {
+            throw new RuntimeException("이미지를 찾을 수 없거나 CDN URL이 없습니다.");
+        }
+
+        String cdnUrl = imageResponse.getCdnUrl();
+        log.info("CDN URL: {}", cdnUrl);
 
 
 
-            return cdnUrl;
+
+        return cdnUrl;
     }
 
 
@@ -58,71 +59,7 @@ public class UrlController {
     // 이미지 데이터가 JSON 응답에 포함되어 있기 때문에 CDN에서 캐싱하거나 브라우저에서 이미지로 바로 사용하기 어려움
     @GetMapping("/image")
     public ImageDto fetchImage(@RequestParam("cdnUrl") String cdnUrl) {
-        try {
-            // CDN URL을 통해 데이터베이스에서 파일 이름 조회
-            log.info("Received CDN URL: {}", cdnUrl);
-            ImageResponse imageResponse = dataService.getCDNImageName(cdnUrl);
-
-            // imageResponse가 null인지 확인
-            if (imageResponse == null) {
-                throw new RuntimeException("No image found for the provided CDN URL.");
-            }
-
-            String fileName = imageResponse.getStoredFileName();
-            String fileType = imageResponse.getFileType();
-            log.info("Stored file name: {}", fileName);
-            log.info("File type: {}", imageResponse.getFileType());
-
-            String bucketToUser = fileType.equalsIgnoreCase("webp")?uploadBucket:downloadBucket;
-
-            // 2. MinIO에서 데이터 조회
-            InputStream inputStream = minioClient.getObject(GetObjectArgs.builder()
-                    .bucket(bucketToUser)
-                    .object(fileName)
-                    .build());
-
-            // InputStream이 null인지 확인
-            if (inputStream == null) {
-                throw new RuntimeException("InputStream is null for file: " + fileName);
-            }
-
-            log.info("InputStream obtained: {}", inputStream);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            //InputStream을 바이트 배열로 변환 및 이미지 형식에 따라 변환 처리
-            if("webp".equalsIgnoreCase(fileType)) {
-                //webp 이미지를 jpg로 변환
-                BufferedImage image = ImageIO.read(inputStream);
-                if(image == null) {
-                    throw new IOException("Unsupported image format or corrupted image");
-                }
-                ImageIO.write(image, "jpg", outputStream); //jpg로 변환
-            } else {
-                //변환하지 않고 그대로 반환
-                inputStream.transferTo(outputStream);
-            }
-
-            byte[] imageBytes = outputStream.toByteArray();
-
-            // 바이트 배열이 비어 있는지 확인
-            if (imageBytes == null || imageBytes.length == 0) {
-                throw new RuntimeException("Image bytes are null or empty.");
-            }
-
-            log.info("Image bytes length: {}", imageBytes.length);
-
-
-
-            // ImageDto 생성 및 반환
-            return new ImageDto(fileName, imageBytes);
-        } catch (IOException e) {
-            log.error("I/O error occurred: {}", e.getMessage());
-            throw new RuntimeException("Error processing the image: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error: {}", e.getMessage());
-            throw new RuntimeException("Error fetching image: " + e.getMessage());
-        }
+       return urlService.fatchImage(cdnUrl);
     }
 
 
