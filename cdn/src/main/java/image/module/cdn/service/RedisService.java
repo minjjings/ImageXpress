@@ -26,7 +26,9 @@ public class RedisService {
         String value = redisTemplate.opsForValue().get(key);
         if (value != null) {
             String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
-            redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
+            if (initialTTL != null) {
+                redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
+            }
         }
         return value;
     }

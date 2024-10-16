@@ -11,11 +11,7 @@ public class ImageDto {
     @JsonProperty("fileName")
     private String fileName;
 
-    @JsonProperty("imageData")
-    private byte[] imageData; // 이미지 데이터
-
-    public ImageDto(String fileName, byte[] imageBytes) {
+    public ImageDto(String fileName) {
         this.fileName = fileName;
-        this.imageData = imageBytes;
     }
 }
