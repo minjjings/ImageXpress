@@ -33,7 +33,7 @@ public class CdnService {
     public String filePath;
 
     public String getPartCdnUrl() {
-        return "http://localhost:" + port + "/cdn/";
+        return "http://cdn:" + port + "/cdn/";
     }
 
     public ImageResponseDto getImage(String cdnUrl) throws IOException {

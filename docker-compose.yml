@@ -1,4 +1,105 @@
 services:
+  eureka:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./eureka
+    ports:
+      - "19090:19090"
+    networks:
+      - image_network
+    env_file:
+      - .env
+  gateway:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./gateway
+    ports:
+      - "19091:19091"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+    env_file:
+      - .env
+  cdn:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./cdn
+    ports:
+      - "19096:19096"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+      - redis
+    env_file:
+      - .env
+  url:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./url
+    ports:
+      - "19093:19093"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+    env_file:
+      - .env
+  data:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./data
+    ports:
+      - "19095:19095"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+    env_file:
+      - .env
+  upload:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./upload
+    ports:
+      - "19092:19092"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+      - kafka
+    env_file:
+      - .env
+  internal:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./internal
+    ports:
+      - "19094:19094"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+      - kafka
+    env_file:
+      - .env
   server-data-db:
     container_name: server_data_db
     image: postgres
@@ -28,6 +129,8 @@ services:
     container_name: image_redis
     ports:
       - "6379:6379"
+    networks:
+      - image_network
 
   minio:
     image: minio/minio
@@ -41,6 +144,8 @@ services:
       MINIO_ROOT_USER: minio    # Minio 로그인 사용자 이름
       MINIO_ROOT_PASSWORD: minioadmin  # Minio 로그인 비밀번호
     command: server /data --console-address ":9001"  # Minio 서버 실행 명령
+    networks:
+      - image_network
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -50,6 +155,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - image_network
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -64,6 +171,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - image_network
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -75,6 +184,8 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
       KAFKA_CLUSTERS_0_READONLY: "false"
+    networks:
+      - image_network
 volumes:
   server_data_db:
 
