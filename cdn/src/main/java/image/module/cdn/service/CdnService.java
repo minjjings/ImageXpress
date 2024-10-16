@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,13 +108,15 @@ public class CdnService {
         ImageDto imageDto = urlServiceClient.fetchImage(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
         log.info("이미지 이름 " + imageDto.getFileName());
 
-        log.info("이미지 값 " + Arrays.toString(imageDto.getImageStream()));
-
         // cdn에 저장할 이미지 이름 생성
         String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
         String saveFileName = imageDto.getFileName() + "_" + cdnImageName;
 
-        String fileLocation = saveImageInCdn(imageDto.getImageStream(), saveFileName);
+        // String fileLocation = saveImageInCdn(imageDto.getImageStream(), saveFileName);
+
+        byte[] imageByte = urlServiceClient.fetchImageByte(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8)).getBody();
+
+        String fileLocation = saveImageInCdn(imageByte, saveFileName);
 
         // TODO: FeignClient에서 추후 caching time 받아서 처리하도록 수정
         redisService.setValue(cdnUrl, fileLocation, 1);

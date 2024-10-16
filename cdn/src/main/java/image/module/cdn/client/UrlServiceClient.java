@@ -2,6 +2,7 @@ package image.module.cdn.client;
 
 import image.module.cdn.dto.ImageDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -10,4 +11,7 @@ public interface UrlServiceClient {
 
     @GetMapping(value = "/fetch/image")
     ImageDto fetchImage(@RequestParam("cdnUrl") String cdnUrl);
+
+    @GetMapping(value = "/fetch/image/byte")
+    ResponseEntity<byte[]> fetchImageByte(@RequestParam("cdnUrl") String cdnUrl);
 }
