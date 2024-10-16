@@ -31,8 +31,11 @@ public class CdnService {
     @Value("${cdn.image.path}")
     public String filePath;
 
+    @Value("${cdn.image.url}")
+    public String fileUrl;
+
     public String getPartCdnUrl() {
-        return "http://localhost:" + port + "/cdn/";
+        return "http://" + fileUrl + ":" + port + "/cdn/";
     }
 
     public ImageResponseDto getImage(String cdnUrl) throws IOException {
@@ -91,6 +94,7 @@ public class CdnService {
 
     // 이미지 저장
     private String saveImageInCdn(byte[] imageBytes, String fileName) throws IOException {
+        log.info("이미지 저장 시도");
         // 저장 경로 생성
         Path uploadPath = Paths.get(filePath);
 
@@ -99,6 +103,8 @@ public class CdnService {
 
         // 이미지 저장
         Files.write(filePath, imageBytes);
+
+        log.info("이미지 저장 완료");
 
         return filePath.toString();
     }

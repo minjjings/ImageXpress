@@ -12,6 +12,7 @@ server:
 cdn:
   image:
     path: "cdn/src/main/resources/static/images/"
+    url: ${SERVER_IP}
 
 resilience4j:
   circuitbreaker:
