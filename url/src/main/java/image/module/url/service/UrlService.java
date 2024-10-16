@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -32,7 +34,7 @@ public class UrlService {
     public ImageDto fetchImage(String cdnUrl) {
         // CDN URL을 통해 데이터베이스에서 파일 이름 조회
         log.info("받은 CDN URL: {}", cdnUrl);
-        ImageResponse imageResponse = dataService.getCDNImageName(cdnUrl);
+        ImageResponse imageResponse = dataService.getCDNImageName(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
 
         // imageResponse가 null인지 확인
         if (imageResponse == null) {
@@ -53,7 +55,8 @@ public class UrlService {
         try {
             // CDN URL을 통해 데이터베이스에서 파일 이름 조회
             log.info("받은 CDN URL: {}", cdnUrl);
-            ImageResponse imageResponse = dataService.getCDNImageName(cdnUrl);
+            ImageResponse imageResponse = dataService.getCDNImageName(
+                    URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
 
             // imageResponse가 null인지 확인
             if (imageResponse == null) {
