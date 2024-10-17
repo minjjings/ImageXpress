@@ -77,8 +77,6 @@ services:
       - "19092:19092"
     networks:
       - image_network
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
     env_file:
       - .env
     depends_on:
@@ -95,8 +93,6 @@ services:
       - "19094:19094"
     networks:
       - image_network
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
     depends_on:
       - eureka
       - gateway
