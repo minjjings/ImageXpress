@@ -77,13 +77,15 @@ services:
       - "19092:19092"
     networks:
       - image_network
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+    env_file:
+      - .env
     depends_on:
       - eureka
       - gateway
       - data
       - kafka
-    env_file:
-      - .env
   internal:
     build:
       dockerfile: Dockerfile
@@ -93,6 +95,8 @@ services:
       - "19094:19094"
     networks:
       - image_network
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
     depends_on:
       - eureka
       - gateway
@@ -162,17 +166,20 @@ services:
     image: wurstmeister/kafka:latest
     platform: linux/amd64
     ports:
+      - "29092:29092"
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:29092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - image_network
+    depends_on:
+      - zookeeper
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest

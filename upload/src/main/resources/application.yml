@@ -2,7 +2,7 @@ spring:
   application:
     name: upload
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: kafka:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -26,4 +26,4 @@ minio:
   bucket: mybucket
 
 cdn-server:
-  url: http://cdn:19096/cdn
+  url: http://localhost:19096/cdn

@@ -19,7 +19,7 @@ public class UploadConfig {
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(minioUrl)
+                .endpoint("http://minio:9000")
                 .credentials(accessKey, secretKey)
                 .build();
     }
