@@ -20,8 +20,8 @@ public class ImageResponse {
     private String storedFileName;
     private String cdnUrl;
     private String fileType;
-    private Integer width;
-    private Integer height;
+    private Integer size;
+    private Integer cachingTime;
     private UUID originalFileUUID;
 
     public static ImageResponse fromEntity(Image image){
@@ -31,8 +31,8 @@ public class ImageResponse {
                 .storedFileName(image.getStoredFileName())
                 .cdnUrl(image.getCdnUrl())
                 .fileType(image.getFileType())
-                .width(image.getWidth())
-                .height(image.getHeight())
+                .size(image.getSize())
+                .cachingTime(image.getCachingTime())
                 .originalFileUUID(image.getOriginalFileUUID())
                 .build();
     }

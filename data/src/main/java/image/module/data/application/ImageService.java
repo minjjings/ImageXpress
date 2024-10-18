@@ -16,7 +16,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
 
     @Transactional
-    public ImageResponse createImage(ImageRequest request){
+    public ImageResponse saveImage(ImageRequest request){
         Image image = Image.create(request);
         imageRepository.save(image);
         image.assignOriginalFileUUID();
