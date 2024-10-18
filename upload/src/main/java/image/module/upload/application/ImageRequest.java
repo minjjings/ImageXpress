@@ -18,14 +18,12 @@ public class ImageRequest {
     private UUID id;
     private String originalFileName;
     private String storedFileName;
-    private String cdnUrl;
     private String fileType;
     private Integer size;
     private Integer cashingTime;
 
     public static ImageRequest create(String originalName,
                                       String extension,
-                                      String cdnBaseUrl,
                                       int size,
                                       int cashingTime) {
         // 1. UUID 생성
@@ -37,13 +35,9 @@ public class ImageRequest {
         // 3. 저장할 파일 이름 생성 (이미지 이름 치환하기)
         String storedFileName = uuid + "_" + formattedTime;
 
-        // 5. cdn url 생성
-        String cdnUrl = cdnBaseUrl + "/" + UUID.randomUUID() + "." + extension;
-
         return ImageRequest.builder()
                 .originalFileName(originalName)
                 .storedFileName(storedFileName)
-                .cdnUrl(cdnUrl)
                 .fileType(extension)
                 .size(size)
                 .cashingTime(cashingTime)

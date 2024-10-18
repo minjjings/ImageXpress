@@ -16,7 +16,7 @@ public class ImageController {
 
     @PostMapping("/image/upload")
     public ImageResponse uploadImage(@RequestBody ImageRequest imageRequest){
-        return imageService.createImage(imageRequest);
+        return imageService.saveImage(imageRequest);
     }
 
     //fetch -> 객체 조회

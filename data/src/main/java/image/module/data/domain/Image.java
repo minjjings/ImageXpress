@@ -35,7 +35,6 @@ public class Image extends BaseEntity {
     @Column(nullable = false)
     private String storedFileName;
 
-    @Column(nullable = false)
     private String cdnUrl;
 
     @Column(nullable = false)
@@ -54,7 +53,6 @@ public class Image extends BaseEntity {
         return Image.builder()
                 .originalFileName(request.getOriginalFileName())
                 .storedFileName(request.getStoredFileName())
-                .cdnUrl(request.getCdnUrl())
                 .fileType(request.getFileType())
                 .size(request.getSize())
                 .cashingTime(request.getCashingTime())

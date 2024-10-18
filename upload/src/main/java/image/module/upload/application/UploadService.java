@@ -30,9 +30,6 @@ public class UploadService {
     @Value("${minio.bucket}")
     private String bucketName;
 
-    @Value("${cdn-server.url}")
-    private String cdnBaseUrl;
-
     //이미지 데이터 db 저장
     public CompletableFuture<String> saveImageMetadata(MultipartFile file, int size, int cashingTime) {
         return CompletableFuture.supplyAsync(() -> {
@@ -59,7 +56,6 @@ public class UploadService {
                 ImageRequest imageRequest = ImageRequest.create(
                         originalName,
                         extension.getKey(),
-                        cdnBaseUrl,
                         imageSize,
                         cashingTime
                 );
