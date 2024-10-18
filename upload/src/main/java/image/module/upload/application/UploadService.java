@@ -31,7 +31,7 @@ public class UploadService {
     private String bucketName;
 
     //이미지 데이터 db 저장
-    public CompletableFuture<String> saveImageMetadata(MultipartFile file, int size, int cashingTime) {
+    public CompletableFuture<String> saveImageMetadata(MultipartFile file, int requestSize, int cachingTime) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // 업로드 파일명을 불러옴
@@ -57,13 +57,13 @@ public class UploadService {
                         originalName,
                         extension.getKey(),
                         imageSize,
-                        cashingTime
+                        cachingTime
                 );
 
                 // 메타데이터 저장
                 ImageResponse imageResponse = dataService.uploadImage(imageRequest);
 
-                uploadImage(file.getInputStream(), file.getSize(), file.getContentType(), imageResponse, size);
+                uploadImage(file.getInputStream(), file.getSize(), file.getContentType(), imageResponse, requestSize);
 
                 return imageResponse.getOriginalFileUUID().toString();
             } catch (Exception e) {//TODO:db 데이터 삭제?
@@ -75,7 +75,7 @@ public class UploadService {
 
     //이미지 업로드
     @SneakyThrows
-    public void uploadImage(InputStream fileInputStream, long size, String contentType, ImageResponse image, int imageSize) {
+    public void uploadImage(InputStream fileInputStream, long size, String contentType, ImageResponse image, int requestSize) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
@@ -85,7 +85,7 @@ public class UploadService {
                             .build()
             );
 
-            kafkaTemplate.send("image-upload-topic", ImageUploadMessage.createMessage(image.getStoredFileName(),imageSize));
+            kafkaTemplate.send("image-upload-topic", ImageUploadMessage.createMessage(image.getStoredFileName(),requestSize));
     }
 
 

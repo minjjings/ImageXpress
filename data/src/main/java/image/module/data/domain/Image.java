@@ -44,7 +44,7 @@ public class Image extends BaseEntity {
     private Integer size;
 
     @Column(nullable = false)
-    private Integer cashingTime;
+    private Integer cachingTime;
 
     @Column(name = "original_file_uuid")
     private UUID originalFileUUID;
@@ -55,7 +55,7 @@ public class Image extends BaseEntity {
                 .storedFileName(request.getStoredFileName())
                 .fileType(request.getFileType())
                 .size(request.getSize())
-                .cashingTime(request.getCashingTime())
+                .cachingTime(request.getCachingTime())
                 .build();
     }
 

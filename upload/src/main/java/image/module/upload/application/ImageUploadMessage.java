@@ -13,12 +13,12 @@ import lombok.Setter;
 @Builder
 public class ImageUploadMessage {
     private String storedFileName;
-    private int imageSize;
+    private Integer requestSize;
 
-    public static ImageUploadMessage createMessage(String storedFileName, int imageSize){
+    public static ImageUploadMessage createMessage(String storedFileName, int requestSize){
         return ImageUploadMessage.builder()
                 .storedFileName(storedFileName)
-                .imageSize(imageSize)
+                .requestSize(requestSize)
                 .build();
     }
 }

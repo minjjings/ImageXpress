@@ -20,12 +20,12 @@ public class ImageRequest {
     private String storedFileName;
     private String fileType;
     private Integer size;
-    private Integer cashingTime;
+    private Integer cachingTime;
 
     public static ImageRequest create(String originalName,
                                       String extension,
                                       int size,
-                                      int cashingTime) {
+                                      int cachingTime) {
         // 1. UUID 생성
         String uuid = UUID.randomUUID().toString();
 
@@ -40,7 +40,7 @@ public class ImageRequest {
                 .storedFileName(storedFileName)
                 .fileType(extension)
                 .size(size)
-                .cashingTime(cashingTime)
+                .cachingTime(cachingTime)
                 .build();
     }
 }

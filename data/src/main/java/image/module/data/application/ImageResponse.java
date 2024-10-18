@@ -21,7 +21,7 @@ public class ImageResponse {
     private String cdnUrl;
     private String fileType;
     private Integer size;
-    private Integer cashingTime;
+    private Integer cachingTime;
     private UUID originalFileUUID;
 
     public static ImageResponse fromEntity(Image image){
@@ -32,7 +32,7 @@ public class ImageResponse {
                 .cdnUrl(image.getCdnUrl())
                 .fileType(image.getFileType())
                 .size(image.getSize())
-                .cashingTime(image.getCashingTime())
+                .cachingTime(image.getCachingTime())
                 .originalFileUUID(image.getOriginalFileUUID())
                 .build();
     }

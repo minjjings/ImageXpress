@@ -31,12 +31,12 @@ public class UploadController {
     @PostMapping
     public SseEmitter uploadImage(@RequestParam("file") MultipartFile file,
                                   @RequestParam(value = "size") int size,
-                                  @RequestParam(value = "cashingTime") int cashingTime
+                                  @RequestParam(value = "cachingTime") int cachingTime
                                   ) throws IOException {
         SseEmitter emitter = new SseEmitter(600000L);
         try {
             emitter.send(SseEmitter.event().name("INIT").data("이미지 업로드가 시작되었습니다."));
-            uploadService.saveImageMetadata(file, size, cashingTime)
+            uploadService.saveImageMetadata(file, size, cachingTime)
                     .handle((result, ex) -> {
                         try {
                             if (ex == null) {
