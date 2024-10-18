@@ -100,6 +100,23 @@ services:
       - kafka
     env_file:
       - .env
+  covert:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./convert
+    ports:
+      - "19097:19097"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+      - upload
+      - kafka
+    env_file:
+      - .env
   server-data-db:
     container_name: server_data_db
     image: postgres
