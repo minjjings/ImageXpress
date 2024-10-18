@@ -20,14 +20,12 @@ public class ImageRequest {
     private String storedFileName;
     private String cdnUrl;
     private String fileType;
-    private Integer width;
-    private Integer height;
+    private Integer size;
 
     public static ImageRequest create(String originalName,
                                       String extension,
                                       String cdnBaseUrl,
-                                      int imageWidth,
-                                      int imageHeight) {
+                                      int size) {
         // 1. UUID 생성
         String uuid = UUID.randomUUID().toString();
 
@@ -45,8 +43,7 @@ public class ImageRequest {
                 .storedFileName(storedFileName)
                 .cdnUrl(cdnUrl)
                 .fileType(extension)
-                .width(imageWidth)
-                .height(imageHeight)
+                .size(size)
                 .build();
     }
 }

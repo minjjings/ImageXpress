@@ -5,6 +5,7 @@ import image.module.upload.domain.ImageExtension;
 import image.module.upload.infrastructure.DataService;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -24,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadService {
     private final MinioClient minioClient;
     private final DataService dataService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, ImageUploadMessage> kafkaTemplate;
 
     @Value("${minio.bucket}")
     private String bucketName;
@@ -33,7 +34,7 @@ public class UploadService {
     private String cdnBaseUrl;
 
     //이미지 데이터 db 저장
-    public CompletableFuture<String> saveImageMetadata(MultipartFile file) {
+    public CompletableFuture<String> saveImageMetadata(MultipartFile file, int size) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // 업로드 파일명을 불러옴
@@ -53,22 +54,22 @@ public class UploadService {
                 BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
                 int imageWidth = bufferedImage.getWidth();
                 int imageHeight = bufferedImage.getHeight();
+                int imageSize = Math.max(imageWidth, imageHeight);
 
                 ImageRequest imageRequest = ImageRequest.create(
                         originalName,
                         extension.getKey(),
                         cdnBaseUrl,
-                        imageWidth,
-                        imageHeight
+                        imageSize
                 );
 
                 // 메타데이터 저장
                 ImageResponse imageResponse = dataService.uploadImage(imageRequest);
 
-                uploadImage(file.getInputStream(), file.getSize(), file.getContentType(), imageResponse);
+                uploadImage(file.getInputStream(), file.getSize(), file.getContentType(), imageResponse, size);
 
                 return imageResponse.getOriginalFileUUID().toString();
-            } catch (Exception e) {//db 데이터 삭제?
+            } catch (Exception e) {//TODO:db 데이터 삭제?
                 log.error("이미지 메타데이터 저장 중 오류 발생: ", e);
                 throw new RuntimeException(e);
             }
@@ -77,7 +78,7 @@ public class UploadService {
 
     //이미지 업로드
     @SneakyThrows
-    public void uploadImage(InputStream fileInputStream, long size, String contentType, ImageResponse image) {
+    public void uploadImage(InputStream fileInputStream, long size, String contentType, ImageResponse image, int imageSize) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
@@ -86,7 +87,8 @@ public class UploadService {
                             .contentType(contentType)
                             .build()
             );
-            kafkaTemplate.send("image-upload-topic", image.getStoredFileName());
+
+            kafkaTemplate.send("image-upload-topic", ImageUploadMessage.createMessage(image.getStoredFileName(),imageSize));
     }
 
 

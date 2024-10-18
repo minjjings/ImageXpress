@@ -23,7 +23,6 @@ public class ImageRequest {
     private String storedFileName;
     private String cdnUrl;
     private String fileType;
-    private Integer width;
-    private Integer height;
+    private Integer size;
     private UUID originalFileUUID;
 }
