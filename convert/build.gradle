@@ -37,20 +37,16 @@ dependencies {
 	// kafka
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// 파일 복사
-	implementation 'commons-io:commons-io:2.11.0'
-
-	// 메타 데이터
-	implementation 'com.drewnoakes:metadata-extractor:2.16.0' // 이미지 메타데이터 추출
-	implementation 'org.apache.commons:commons-imaging:1.0-alpha2' // 이미지 메타데이터 수정
+	//minio
+	implementation 'io.minio:minio:8.5.0'
+	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
 	// WebP
 	implementation "com.sksamuel.scrimage:scrimage-core:4.0.32"
 	implementation "com.sksamuel.scrimage:scrimage-webp:4.0.32"
 
-	//minio
-	implementation 'io.minio:minio:8.5.0'
-	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+	// 이미지 파일 복사
+	implementation 'commons-io:commons-io:2.11.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'

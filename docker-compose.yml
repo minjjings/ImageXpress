@@ -84,23 +84,7 @@ services:
       - gateway
       - data
       - kafka
-  internal:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./internal
-    ports:
-      - "19094:19094"
-    networks:
-      - image_network
-    depends_on:
-      - eureka
-      - gateway
-      - data
-      - kafka
-    env_file:
-      - .env
-  covert:
+  convert:
     build:
       dockerfile: Dockerfile
       args:
@@ -113,7 +97,6 @@ services:
       - eureka
       - gateway
       - data
-      - upload
       - kafka
     env_file:
       - .env
