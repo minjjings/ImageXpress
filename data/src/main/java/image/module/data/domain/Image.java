@@ -35,17 +35,16 @@ public class Image extends BaseEntity {
     @Column(nullable = false)
     private String storedFileName;
 
-    @Column(nullable = false)
     private String cdnUrl;
 
     @Column(nullable = false)
     private String fileType;
 
     @Column(nullable = false)
-    private Integer width;
+    private Integer size;
 
     @Column(nullable = false)
-    private Integer height;
+    private Integer cachingTime;
 
     @Column(name = "original_file_uuid")
     private UUID originalFileUUID;
@@ -54,10 +53,9 @@ public class Image extends BaseEntity {
         return Image.builder()
                 .originalFileName(request.getOriginalFileName())
                 .storedFileName(request.getStoredFileName())
-                .cdnUrl(request.getCdnUrl())
                 .fileType(request.getFileType())
-                .width(request.getWidth())
-                .height(request.getHeight())
+                .size(request.getSize())
+                .cachingTime(request.getCachingTime())
                 .build();
     }
 
@@ -67,8 +65,7 @@ public class Image extends BaseEntity {
                 .storedFileName(imageRequest.getStoredFileName())
                 .cdnUrl(imageRequest.getCdnUrl())
                 .fileType(imageRequest.getFileType())
-                .width(imageRequest.getWidth())
-                .height(imageRequest.getHeight())
+                .size(imageRequest.getSize())
                 .originalFileUUID(image.getId())
                 .build();
     }
