@@ -44,6 +44,9 @@ public class Image extends BaseEntity {
     @Column(nullable = false)
     private Integer size;
 
+    @Column(nullable = false)
+    private Integer cashingTime;
+
     @Column(name = "original_file_uuid")
     private UUID originalFileUUID;
 
@@ -54,6 +57,7 @@ public class Image extends BaseEntity {
                 .cdnUrl(request.getCdnUrl())
                 .fileType(request.getFileType())
                 .size(request.getSize())
+                .cashingTime(request.getCashingTime())
                 .build();
     }
 

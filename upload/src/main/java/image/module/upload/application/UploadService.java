@@ -34,7 +34,7 @@ public class UploadService {
     private String cdnBaseUrl;
 
     //이미지 데이터 db 저장
-    public CompletableFuture<String> saveImageMetadata(MultipartFile file, int size) {
+    public CompletableFuture<String> saveImageMetadata(MultipartFile file, int size, int cashingTime) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // 업로드 파일명을 불러옴
@@ -60,7 +60,8 @@ public class UploadService {
                         originalName,
                         extension.getKey(),
                         cdnBaseUrl,
-                        imageSize
+                        imageSize,
+                        cashingTime
                 );
 
                 // 메타데이터 저장

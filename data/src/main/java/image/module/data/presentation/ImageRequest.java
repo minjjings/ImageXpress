@@ -24,5 +24,6 @@ public class ImageRequest {
     private String cdnUrl;
     private String fileType;
     private Integer size;
+    private Integer cashingTime;
     private UUID originalFileUUID;
 }
