@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: convert
+#  kafka:
+#    bootstrap-servers: kafka:29092
+#    consumer:
+#      group-id: image-upload-group # 컨슈머 그룹 ID
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 키 역직렬화
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 값 역직렬화
+server:
+  port: 19097
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:19090/eureka/
+
+logging:
+  level:
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace
+
+minio:
+  url: http://minio:9000
+  access:
+    key: minio
+    secret: minioadmin
+  buckets:
+    downloadBucket: mybucket
+    uploadBucket: update-bucket
+
+cdn-server:
+  url: http://localhost:19096/cdn
