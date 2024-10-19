@@ -3,10 +3,25 @@ spring:
     name: convert
   kafka:
     bootstrap-servers: kafka:29092
+#    consumer:
+#      group-id: image-upload-group # 컨슈머 그룹 ID
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 키 역직렬화
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer  # 값 역직렬화
     consumer:
-      group-id: image-upload-group # 컨슈머 그룹 ID
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 키 역직렬화
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # 값 역직렬화
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          deserializer:
+            key:
+              delegate:
+                class: org.apache.kafka.common.serialization.StringDeserializer
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+          json:
+            type:
+              mapping: "image.module.upload.application.ImageUploadMessage:image.module.convert.dto.UploadMessage"
 server:
   port: 19097
 

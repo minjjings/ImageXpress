@@ -3,7 +3,7 @@ package image.module.convert.service;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import image.module.convert.DataClient;
-import image.module.convert.dto.ImageRequest;
+import image.module.convert.dto.UploadMessage;
 import image.module.convert.dto.UpdateImageData;
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +42,11 @@ public class ImageService {
 
   // 전체 이미지 처리 로직을 관리하는 메서드
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
-  public void removeMetadataAndCovertWebP(String message) {
-    // TODO Dto에서 UUID_날짜, Size 받기
-    Integer size = 500;
+  public void removeMetadataAndCovertWebP(UploadMessage imageUploadMessage) {
+    log.info("@@@ ImageUploadMessage" + imageUploadMessage.getStoredFileName());
+    log.info("@@@ ImageUploadMessage" + imageUploadMessage.getRequestSize());
+    String message = imageUploadMessage.getStoredFileName();
+    Integer size = 300;
 
     // 확장자 추출
     String extension = extractExtensionFromMinio(message);
