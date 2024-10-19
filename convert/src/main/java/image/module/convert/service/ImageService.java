@@ -3,8 +3,8 @@ package image.module.convert.service;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import image.module.convert.DataClient;
-import image.module.convert.dto.UploadMessage;
 import image.module.convert.dto.UpdateImageData;
+import image.module.convert.dto.UploadMessage;
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -43,35 +43,33 @@ public class ImageService {
   // 전체 이미지 처리 로직을 관리하는 메서드
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
   public void removeMetadataAndCovertWebP(UploadMessage imageUploadMessage) {
-    log.info("@@@ ImageUploadMessage" + imageUploadMessage.getStoredFileName());
-    log.info("@@@ ImageUploadMessage" + imageUploadMessage.getRequestSize());
-    String message = imageUploadMessage.getStoredFileName();
-    Integer size = 300;
+    String StoredFileName = imageUploadMessage.getStoredFileName();
+    Integer size = imageUploadMessage.getRequestSize();
 
     // 확장자 추출
-    String extension = extractExtensionFromMinio(message);
+    String extension = extractExtensionFromMinio(StoredFileName);
 
     // 이미지 다운로드
-    InputStream originalFile = downloadImage(message);
+    InputStream originalFile = downloadImage(StoredFileName);
 
     // 원본 이미지 복사
     File copyOriginalFile = copyOriginalImage(originalFile, extension);
 
     //4. MINIO 원본 이미지 삭제
-    removeOriginalImage(message);
+    removeOriginalImage(StoredFileName);
 
     // EXIF 메타데이터 삭제
     File noExifFile = removeExifMetadata(copyOriginalFile, extension);
 
     // MINIO로 업로드
-    uploadImageToMinio(noExifFile, message, extension);
+    uploadImageToMinio(noExifFile, StoredFileName, extension);
 
     // 7. 복사 이미지 WebP로 변환
-    File webpFile = convertToWebp(message, copyOriginalFile);
+    File webpFile = convertToWebp(StoredFileName, copyOriginalFile);
     // 8. WebP 이미지 업로드
     uploadWebPImage(webpFile);
     // 9. DB 업데이트 / Size, cdnUrl 추가
-    UpdateImageData updateImageDataInfo = UpdateImageData.create(message, size, cdnBaseUrl);
+    UpdateImageData updateImageDataInfo = UpdateImageData.create(StoredFileName, size, cdnBaseUrl);
     dataClient.updateImageData(updateImageDataInfo);
 
     // TODO Kafka Dto를 통해서  webpFile.getName, Size 보내주기
