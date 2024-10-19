@@ -4,6 +4,7 @@ import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import image.module.convert.DataClient;
 import image.module.convert.dto.ImageRequest;
+import image.module.convert.dto.UpdateImageData;
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -42,7 +43,9 @@ public class ImageService {
   // 전체 이미지 처리 로직을 관리하는 메서드
   @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
   public void removeMetadataAndCovertWebP(String message) {
-    log.info("@@@ message: " + message);
+    // TODO Dto에서 UUID_날짜, Size 받기
+    Integer size = 500;
+
     // 확장자 추출
     String extension = extractExtensionFromMinio(message);
 
@@ -65,9 +68,12 @@ public class ImageService {
     File webpFile = convertToWebp(message, copyOriginalFile);
     // 8. WebP 이미지 업로드
     uploadWebPImage(webpFile);
-    // 9. 업로드 된 WebP 이미지 DB 저장
-    ImageRequest imageRequest = ImageRequest.create(webpFile, extension, 300, 300, cdnBaseUrl);
-    dataClient.uploadResizeImage(imageRequest);
+    // 9. DB 업데이트 / Size, cdnUrl 추가
+    UpdateImageData updateImageDataInfo = UpdateImageData.create(message, size, cdnBaseUrl);
+    dataClient.updateImageData(updateImageDataInfo);
+
+    // TODO Kafka Dto를 통해서  webpFile.getName, Size 보내주기
+
     // 10. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, webpFile);
   }

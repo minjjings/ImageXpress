@@ -59,15 +59,9 @@ public class Image extends BaseEntity {
                 .build();
     }
 
-    public static Image createResize(Image image, ImageRequest imageRequest){
-        return Image.builder()
-                .originalFileName(image.getOriginalFileName())
-                .storedFileName(imageRequest.getStoredFileName())
-                .cdnUrl(imageRequest.getCdnUrl())
-                .fileType(imageRequest.getFileType())
-                .size(imageRequest.getSize())
-                .originalFileUUID(image.getId())
-                .build();
+    public void updateImageData(Integer size, String cdnUrl){
+        this.size = size;
+        this.cdnUrl = cdnUrl;
     }
 
     public void assignOriginalFileUUID(){
