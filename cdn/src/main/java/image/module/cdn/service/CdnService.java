@@ -49,7 +49,9 @@ public class CdnService {
 
         ImageResponseDto imageResponseDto = getImageInfo(fileLocation);
 
-        imageResponseDto.getHeaders().setContentDispositionFormData("attachment", getOriginalNameByPath(fileLocation));
+        String imageOriginalName = getOriginalNameByPath(fileLocation) + "." + getImageType(fileLocation);
+
+        imageResponseDto.getHeaders().setContentDispositionFormData("attachment", imageOriginalName);
 
         return imageResponseDto;
     }
@@ -133,17 +135,16 @@ public class CdnService {
 
     // 저장된 이미지 이름에서 원본 이미지 뽑는 메서드
     private String getOriginalNameByPath(String fileLocation) {
-        // FILE_PATH/originalName_cdnImageName.확장자 - FILE_PATH/
+        // FILE_PATH/originalName_cdnImageName - FILE_PATH/
         String removeFilePath = fileLocation.replace(filePath, "");
 
-        int startIndex = removeFilePath.indexOf('_');
-        int endIndex = removeFilePath.indexOf('.');
+        int removedIndex = removeFilePath.indexOf('_');
 
-        if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+        if (removedIndex == -1) {
             throw new IllegalArgumentException("잘못된 이미지 이름 형식 입니다: " + removeFilePath);
         }
 
-        // originalName_cdnImageName.확장자 - _cdnImageName
-        return removeFilePath.substring(0, startIndex) + removeFilePath.substring(endIndex);
+        // originalName_cdnImageName - _cdnImageName
+        return removeFilePath.substring(0, removedIndex);
     }
 }
