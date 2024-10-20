@@ -10,5 +10,5 @@ public class ImageDto {
     // private byte[] imageStream;
     private String fileName;
 
-    private Integer cachingTime;
+    private Integer cachingTime = 1;
 }

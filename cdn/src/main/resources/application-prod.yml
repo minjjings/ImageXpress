@@ -11,7 +11,7 @@ server:
 
 cdn:
   image:
-    path: "cdn/src/main/resources/static/images/"
+    path: "./cdn/images/"
     url: ${SERVER_IP}
 
 resilience4j:
