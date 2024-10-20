@@ -100,7 +100,12 @@ public class CdnService {
         // 저장 경로 생성
         Path uploadPath = Paths.get(filePath);
 
-        // 파일 경로
+        // 폴더가 존재하지 않으면 생성
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // 이미지 파일 경로
         Path filePath = uploadPath.resolve(fileName);
 
         // 이미지 저장
