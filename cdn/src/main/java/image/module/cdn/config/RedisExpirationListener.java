@@ -31,7 +31,7 @@ public class RedisExpirationListener implements MessageListener {
         try {
             handleExpiredKey(expiredKey);
         } catch (IOException e) {
-            log.error("이미지 삭제 시 오류 발생");
+            log.error("이미지 삭제 시 오류 발생!! ");
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
@@ -46,11 +46,13 @@ public class RedisExpirationListener implements MessageListener {
 
         redisService.deleteKey("backup_" + key);
         redisService.deleteKey(key + ":ttl");
+        redisService.deleteKey(key + ":hitRate");
     }
 
     private void deleteImage(String imageName) throws IOException {
         log.info(imageName + " 이미지 삭제 시도");
         Path imagePath = Paths.get(imageName);
         Files.deleteIfExists(imagePath);
+        log.info("이미지 삭제 성공");
     }
 }

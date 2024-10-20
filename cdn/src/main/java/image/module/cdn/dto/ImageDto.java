@@ -9,4 +9,8 @@ public class ImageDto {
 
     // private byte[] imageStream;
     private String fileName;
+
+    private String fileType;
+
+    private Integer cachingTime;
 }

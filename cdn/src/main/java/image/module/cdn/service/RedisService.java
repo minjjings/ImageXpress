@@ -16,9 +16,10 @@ public class RedisService {
     }
 
     // 값을 Redis에 저장하는 메서드
-    public void setValue(String key, String value, int cachingTime) {
+    public void setValue(String key, String value, Integer cachingTime) {
         redisTemplate.opsForValue().set(key + ":ttl", String.valueOf(cachingTime));
         redisTemplate.opsForValue().set(key, value, cachingTime, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key + ":hitRate", String.valueOf(0));
     }
 
     // 값을 Redis에서 가져오는 메서드
@@ -28,6 +29,11 @@ public class RedisService {
             String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
             if (initialTTL != null) {
                 redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
+                String hitRate = redisTemplate.opsForValue().get(key + ":hitRate");
+                if (hitRate != null) {
+                    Integer plusHitRate = Integer.parseInt(hitRate) + 1;
+                    redisTemplate.opsForValue().set(key + ":hitRate", String.valueOf(plusHitRate));
+                }
             }
         }
         return value;

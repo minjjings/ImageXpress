@@ -125,7 +125,7 @@ public class CdnService {
         String fileLocation = saveImageInCdn(imageByte, saveFileName);
 
         // TODO: FeignClient에서 추후 caching time 받아서 처리하도록 수정
-        redisService.setValue(cdnUrl, fileLocation, 1);
+        redisService.setValue(cdnUrl, fileLocation, imageDto.getCachingTime());
         redisService.setBackupValue(cdnUrl, fileLocation);
 
         return fileLocation;
