@@ -13,6 +13,12 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
 }
@@ -22,10 +28,34 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// EurekaClient
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	// feignClient
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	//minio
+	implementation 'io.minio:minio:8.5.0'
+	implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+	// WebP
+	implementation "com.sksamuel.scrimage:scrimage-core:4.0.32"
+	implementation "com.sksamuel.scrimage:scrimage-webp:4.0.32"
+
+	// 이미지 파일 복사
+	implementation 'commons-io:commons-io:2.11.0'
+
+	// Thumbnailator (이미지 리사이징)
+	implementation 'net.coobird:thumbnailator:0.4.20'
+
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
