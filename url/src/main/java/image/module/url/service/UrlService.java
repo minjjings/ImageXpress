@@ -18,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -91,6 +92,7 @@ public class UrlService {
             headers.add("fileName", fileName);
             headers.add("File-Type", fileType);
             headers.add("cache-time", cache.toString());
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
 
             // ResponseEntity 반환
