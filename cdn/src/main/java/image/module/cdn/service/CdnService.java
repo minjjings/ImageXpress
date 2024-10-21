@@ -1,7 +1,6 @@
 package image.module.cdn.service;
 
 import image.module.cdn.client.UrlServiceClient;
-import image.module.cdn.dto.ImageDto;
 import image.module.cdn.dto.ImageResponseDto;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -171,22 +171,34 @@ public class CdnService {
     }
 
     private String getImageAndSave(String cdnUrl) throws IOException {
-        // fetch server에게 이미지 요청
-        ImageDto imageDto = urlServiceClient.fetchImage(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
-        log.info("이미지 이름 " + imageDto.getFileName());
+
+        // fetch server에 정보 요청
+        ResponseEntity<byte[]> imageResponse = urlServiceClient.fetchImageByte(
+                URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
+
+        // Header 추출
+        HttpHeaders headers = imageResponse.getHeaders();
+
+        // Body 추출
+        byte[] imageByte = imageResponse.getBody();
+
+        // Header에서 필요한 값들 추출
+        String headerFileName = headers.getFirst("fileName");
+        String headerCachingTime = headers.getFirst("cache-time");
+
+        // 필요한 값들 가공
+        String fileName = headerFileName.substring(0, headerFileName.lastIndexOf("."));
+        Integer cachingTime = Integer.parseInt(headerCachingTime);
 
         // cdn에 저장할 이미지 이름 생성
         String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
-        String saveFileName = imageDto.getFileName() + "_" + cdnImageName;
+        String saveFileName = fileName + "_" + cdnImageName;
 
-        // String fileLocation = saveImageInCdn(imageDto.getImageStream(), saveFileName);
-
-        byte[] imageByte = urlServiceClient.fetchImageByte(URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8)).getBody();
-
+        // 이미지 저장
         String fileLocation = saveImageInCdn(imageByte, saveFileName);
 
-        // TODO: FeignClient에서 추후 caching time 받아서 처리하도록 수정
-        redisService.setValue(cdnUrl, fileLocation, imageDto.getCachingTime());
+        // redis에 값 저장
+        redisService.setValue(cdnUrl, fileLocation, cachingTime);
         redisService.setBackupValue(cdnUrl, fileLocation);
 
         return fileLocation;
