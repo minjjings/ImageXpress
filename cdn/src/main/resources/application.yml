@@ -11,7 +11,7 @@ server:
 
 cdn:
   image:
-    path: "cdn/src/main/resources/static/images/"
+    path: "./cdn/images/"
     url: "localhost"
 
 resilience4j:
@@ -42,9 +42,9 @@ management:
     metrics:
       export:
         enabled: true
-  zipkin:
-    tracing:
-      endpoint: "http://zipkin:9411/api/v2/spans"
+  #  zipkin:
+  #    tracing:
+  #      endpoint: "http://zipkin:9411/api/v2/spans"
   tracing:
     sampling:
       probability: 1.0
