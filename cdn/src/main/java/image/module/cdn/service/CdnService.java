@@ -3,17 +3,22 @@ package image.module.cdn.service;
 import image.module.cdn.client.UrlServiceClient;
 import image.module.cdn.dto.ImageDto;
 import image.module.cdn.dto.ImageResponseDto;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -113,7 +118,56 @@ public class CdnService {
 
         log.info("이미지 저장 완료");
 
+        checkVolume();
+
         return filePath.toString();
+    }
+
+    // 폴더 크기 계산
+    private long calculateFolderSize(Path folder) throws IOException {
+        final long[] size = {0};
+
+        Files.walkFileTree(folder, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                size[0] += attrs.size();
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return size[0];
+    }
+
+    @Async
+    public void checkVolume() {
+        log.info("이미지 저장 폴더 용량 체크");
+        try {
+            Path folderPath = Paths.get(filePath);
+
+            // 폴더 크기 계산
+            long folderSize = calculateFolderSize(folderPath);
+
+            // 해당 폴더가 위치한 디스크의 경로를 파일 객체로 변환
+            File disk = new File(folderPath.toString());
+
+            // 디스크의 총 용량과 사용 가능한 용량을 얻음
+            long totalDiskSpace = disk.getTotalSpace();     // 전체 디스크 용량 (bytes)
+            long freeDiskSpace = disk.getFreeSpace();       // 사용 가능한 공간 (bytes)
+            long usedDiskSpace = totalDiskSpace - freeDiskSpace;  // 사용 중인 공간 (bytes)
+
+            // 폴더가 디스크에서 차지하는 비율 계산
+            double folderUsagePercentage = (double) folderSize / totalDiskSpace * 100;
+
+            // 결과 출력
+            log.info("Total disk space: " + totalDiskSpace / (1024.0 * 1024 * 1024) + " GB");
+            log.info("Used disk space: " + usedDiskSpace / (1024.0 * 1024 * 1024) + " GB");
+            log.info("Folder size: " + folderSize / (1024.0 * 1024) + " MB");
+            log.info(String.format("Folder usage: %.2f%%", folderUsagePercentage));
+        } catch (IOException e) {
+            log.error("폴더 용량 계산 중 요류 발생! ");
+            e.printStackTrace();
+        }
+
     }
 
     private String getImageAndSave(String cdnUrl) throws IOException {
