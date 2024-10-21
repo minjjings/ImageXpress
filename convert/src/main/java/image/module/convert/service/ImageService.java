@@ -3,6 +3,7 @@ package image.module.convert.service;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
 import image.module.convert.DataClient;
+import image.module.convert.dto.SendKafkaMessage;
 import image.module.convert.dto.UpdateImageData;
 import image.module.convert.dto.UploadMessage;
 import io.minio.*;
@@ -11,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -35,9 +37,12 @@ public class ImageService {
   private final MinioClient minioClient;
   private final DataClient dataClient;
 
-  public ImageService(MinioClient minioClient, DataClient dataClient) {
+  private final KafkaTemplate<String, SendKafkaMessage> kafkaTemplate;
+
+  public ImageService(MinioClient minioClient, DataClient dataClient, KafkaTemplate<String, SendKafkaMessage> kafkaTemplate) {
     this.minioClient = minioClient;
     this.dataClient = dataClient;
+    this.kafkaTemplate = kafkaTemplate;
   }
 
   // 전체 이미지 처리 로직을 관리하는 메서드
@@ -73,6 +78,7 @@ public class ImageService {
     dataClient.updateImageData(updateImageDataInfo);
 
     // TODO Kafka Dto를 통해서  webpFile.getName, Size 보내주기
+    kafkaTemplate.send("image-resize-topic", SendKafkaMessage.createMessage(webpFile.getName(), size));
 
     // 10. 임시 파일 삭제
     cleanupTemporaryFiles(copyOriginalFile, webpFile);
