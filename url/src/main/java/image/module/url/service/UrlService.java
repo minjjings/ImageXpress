@@ -9,12 +9,16 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -50,65 +54,50 @@ public class UrlService {
         return new ImageDto(fileName);
     }
 
-    public byte[] fetchImageByte(String cdnUrl) {
 
+    public ResponseEntity<byte[]> fetchImageByte(String cdnUrl) {
         try {
-            // CDN URL을 통해 데이터베이스에서 파일 이름 조회
             log.info("받은 CDN URL: {}", cdnUrl);
-            ImageResponse imageResponse = dataService.getCDNImageName(
-                    URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8));
 
-            // imageResponse가 null인지 확인
-            if (imageResponse == null) {
-                throw new RuntimeException("제공된 CDN URL에 대한 이미지를 찾을 수 없습니다.");
-            }
+            //data server에서 image 정보 조회 메서드
+            ImageResponse imageResponse = getImageResponse(cdnUrl);
 
-            String fileName = imageResponse.getStoredFileName();
+            // 조회한 이미지에서 storedFileName , originalFileName , fileType 조회
+            String fileName = imageResponse.getOriginalFileName();
+            String storegeFileName = imageResponse.getStoredFileName();
             String fileType = imageResponse.getFileType();
+            Integer cache = imageResponse.getCachingTime();
+
             log.info("저장된 파일명: {}", fileName);
             log.info("파일 타입: {}", fileType);
 
+            // file type이 webp이면 minio bucket uploadBucket으로 조회, 그 외는 downloadBucket에서 조회
             String bucketToUse = fileType.equalsIgnoreCase("webp") ? uploadBucket : downloadBucket;
 
-            // 2. MinIO에서 데이터 조회
-            InputStream inputStream = minioClient.getObject(GetObjectArgs.builder()
-                    .bucket(bucketToUse)
-                    .object(fileName)
-                    .build());
+            //minio에서 이미지 파일 가져오는 것
+            InputStream inputStream = getImageInputStream(bucketToUse, storegeFileName);
 
-            // InputStream이 null인지 확인
-            if (inputStream == null) {
-                throw new RuntimeException(fileName + " 파일에 대한 InputStream이 null입니다.");
-            }
+            // 이미지 변환 및 바이트 배열 변환 로직
+            byte[] imageBytes = convertImageToBytes(inputStream, fileType);
 
-            log.info("얻은 InputStream: {}", inputStream);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            // InputStream을 바이트 배열로 변환 및 이미지 형식에 따라 변환 처리
-            if ("webp".equalsIgnoreCase(fileType)) {
-                // webp 이미지를 jpg로 변환
-                BufferedImage image = ImageIO.read(inputStream);
-                if (image == null) {
-                    throw new IOException("지원하지 않는 이미지 형식이거나 손상된 이미지입니다.");
-                }
-                ImageIO.write(image, "jpg", outputStream); // jpg로 변환
-            } else {
-                // 변환하지 않고 그대로 반환
-                inputStream.transferTo(outputStream);
-            }
-
-            byte[] imageBytes = outputStream.toByteArray();
-
-            // 바이트 배열이 비어 있는지 확인
             if (imageBytes == null || imageBytes.length == 0) {
                 throw new RuntimeException("이미지 바이트가 null이거나 비어 있습니다.");
             }
 
             log.info("이미지 바이트 길이: {}", imageBytes.length);
+            // 헤더 설정
+            // 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("fileName", fileName);
+            headers.add("File-Type", fileType);
+            headers.add("cache-time", cache.toString());
 
-            // ImageDto 생성 및 반환
-            return imageBytes;
+
+            // ResponseEntity 반환
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(imageBytes);
+
         } catch (IOException e) {
             log.error("입출력 오류 발생: {}", e.getMessage());
             throw new RuntimeException("이미지 처리 중 오류 발생: " + e.getMessage());
@@ -117,4 +106,56 @@ public class UrlService {
             throw new RuntimeException("이미지 가져오기 중 오류 발생: " + e.getMessage());
         }
     }
+
+    //이미지 파일 이름 조회 부분 분리
+    private ImageResponse getImageResponse(String cdnUrl) throws UnsupportedEncodingException {
+        String encodedUrl = URLEncoder.encode(cdnUrl, StandardCharsets.UTF_8);
+        ImageResponse imageResponse = dataService.getCDNImageName(encodedUrl);
+
+        if (imageResponse == null) {
+            throw new RuntimeException("제공된 CDN URL에 대한 이미지를 찾을 수 없습니다.");
+        }
+
+        return imageResponse;
+    }
+
+    //MiniO에서 이미지 파일 가져오는 부분 분리
+
+    private InputStream getImageInputStream(String bucket, String storegeFileName) throws Exception {
+        InputStream inputStream = minioClient.getObject(GetObjectArgs.builder()
+                .bucket(bucket)
+                .object(storegeFileName)
+                .build());
+
+        if (inputStream == null) {
+            throw new RuntimeException(storegeFileName+ " 파일에 대한 InputStream이 null입니다.");
+        }
+
+        return inputStream;
+    }
+
+    // 이미지 변환 및 바이트 배열 변환 로직 분리
+
+    private byte[] convertImageToBytes(InputStream inputStream, String fileType) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        if ("webp".equalsIgnoreCase(fileType)) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                throw new IOException("지원하지 않는 이미지 형식이거나 손상된 이미지입니다.");
+            }
+            ImageIO.write(image, "jpg", outputStream); // JPG로 변환
+        } else {
+            inputStream.transferTo(outputStream);
+        }
+
+        return outputStream.toByteArray();
+    }
+
+
+
+
+
+
+
 }

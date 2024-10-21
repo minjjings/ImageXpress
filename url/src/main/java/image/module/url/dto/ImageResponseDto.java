@@ -13,9 +13,13 @@ public class ImageResponseDto {
     @JsonProperty("imageData")
     private String imageData; // Base64로 인코딩된 이미지 데이터
 
-    public ImageResponseDto(String fileName, String imageData) {
+    @JsonProperty("cachingTime")
+    private Integer cachingTime;
+
+    public ImageResponseDto(String fileName, String imageData, Integer cachingTime) {
         this.fileName = fileName;
         this.imageData = imageData;
+        this.cachingTime = cachingTime;
     }
 
 }
