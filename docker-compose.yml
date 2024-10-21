@@ -102,6 +102,22 @@ services:
       - kafka
     env_file:
       - .env
+  resize:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./resize
+    ports:
+      - "19098:19098"
+    networks:
+      - image_network
+    depends_on:
+      - eureka
+      - gateway
+      - data
+      - kafka
+    env_file:
+      - .env
   server-data-db:
     container_name: server_data_db
     image: postgres

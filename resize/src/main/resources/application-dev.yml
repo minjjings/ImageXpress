@@ -1,11 +1,8 @@
 spring:
   application:
-    name: convert
+    name: resize
   kafka:
     bootstrap-servers: kafka:29092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -20,9 +17,9 @@ spring:
                 class: org.springframework.kafka.support.serializer.JsonDeserializer
           json:
             type:
-              mapping: "image.module.upload.application.ImageUploadMessage:image.module.convert.dto.UploadMessage"
+              mapping: "image.module.convert.dto.SendKafkaMessage:image.module.resize.dto.ReceiveKafkaMessage"
 server:
-  port: 19097
+  port: 19098
 
 eureka:
   client:
@@ -43,7 +40,6 @@ minio:
     key: minio
     secret: minioadmin
   buckets:
-    downloadBucket: mybucket
     uploadBucket: update-bucket
 
 cdn-server:
