@@ -37,11 +37,12 @@ public class ImageController {
         return getCDNImageName;
     }
 
-    // 리사이즈 이미지 DB 저장
-    @PostMapping("/image/upload/resize")
-    void uploadResizeImage(
-            @RequestBody ImageRequest imageRequest
-    ){
-        imageService.uploadResizeImage(imageRequest);
+    // size, cdnUrl 업데이트
+    @PostMapping("/image/update")
+    public void updateImageData(
+            @RequestBody UpdateImageData updateImageData
+    ) {
+        imageService.updateImage(updateImageData); // Image 업데이트 로직
+
     }
 }
