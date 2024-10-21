@@ -16,18 +16,33 @@ public class RedisService {
     }
 
     // 값을 Redis에 저장하는 메서드
-    public void setValue(String key, String value, int cachingTime) {
-        redisTemplate.opsForValue().set(key + ":ttl", String.valueOf(cachingTime));
+    public void setValue(String key, String value, Integer cachingTime) {
         redisTemplate.opsForValue().set(key, value, cachingTime, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key + ":ttl", String.valueOf(cachingTime));
+        redisTemplate.opsForValue().set(key + ":hitRate", String.valueOf(0));
     }
 
     // 값을 Redis에서 가져오는 메서드
     public String getValue(String key) {
+        // 이미지 저장 경로 가져옴
         String value = redisTemplate.opsForValue().get(key);
         if (value != null) {
+
+            // ttl 값 가져옴
             String initialTTL = redisTemplate.opsForValue().get(key + ":ttl");
             if (initialTTL != null) {
+
+                // ttl 연장
                 redisTemplate.expire(key, Integer.parseInt(initialTTL), TimeUnit.MINUTES);
+
+                // hitRate 값 가져옴
+                String hitRate = redisTemplate.opsForValue().get(key + ":hitRate");
+                if (hitRate != null) {
+
+                    // hitRate 1 올림
+                    Integer plusHitRate = Integer.parseInt(hitRate) + 1;
+                    redisTemplate.opsForValue().set(key + ":hitRate", String.valueOf(plusHitRate));
+                }
             }
         }
         return value;

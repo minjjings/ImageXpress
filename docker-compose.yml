@@ -32,6 +32,8 @@ services:
       - "19096:19096"
     networks:
       - image_network
+    volumes:
+      - ./cdn/images:/app/cdn/images  # 로컬 cdn 폴더의 images 폴더를 컨테이너에 매핑
     env_file:
       - .env
   url:
