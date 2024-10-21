@@ -87,36 +87,4 @@ public class UploadService {
 
             kafkaTemplate.send("image-upload-topic", ImageUploadMessage.createMessage(image.getStoredFileName(),requestSize));
     }
-
-
-//    @SneakyThrows
-//    public ResponseEntity<byte[]> getImage(String cdnUrl) {
-//        byte[] imageBytes = minioClient.getObject(
-//                GetObjectArgs.builder()
-//                        .bucket(bucketName)
-//                        .object("")
-//                        .build()).readAllBytes();
-//
-//        // 응답 헤더 설정
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.parseMediaType("image/jpeg"));
-//
-//        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-//    }
-//
-//    @SneakyThrows
-//    public ResponseEntity<byte[]> downloadImage(String cdnUrl){
-//        byte[] imageBytes = minioClient.getObject(
-//                GetObjectArgs.builder()
-//                        .bucket(bucketName)
-//                        .object("")
-//                        .build()).readAllBytes();
-//
-//        // 응답 헤더 설정
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.parseMediaType("image/jpeg"));
-//        headers.setContentDispositionFormData("attachment", "test.jpeg");
-//
-//        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-//    }
 }
