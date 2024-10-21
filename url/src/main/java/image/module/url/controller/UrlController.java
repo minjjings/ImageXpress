@@ -59,11 +59,11 @@ public class UrlController {
     // 이미지 바이트 배열로 반환하는 FeignClient용 api
     @GetMapping("/image/byte")
     public ResponseEntity<byte[]> fetchImageByte(@RequestParam("cdnUrl") String cdnUrl) {
-        byte[] imageBytes = urlService.fetchImageByte(cdnUrl);
-        // 적절한 MIME 타입으로 응답을 설정 (예: 이미지의 경우)
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // 또는 MediaType.IMAGE_PNG 등
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+
+//        // 적절한 MIME 타입으로 응답을 설정 (예: 이미지의 경우)
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // 또는 MediaType.IMAGE_PNG 등
+        return urlService.fetchImageByte(cdnUrl);
     }
 }
 
