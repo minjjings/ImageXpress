@@ -54,7 +54,7 @@ public class CdnService {
 
         ImageResponseDto imageResponseDto = getImageInfo(fileLocation);
 
-        String imageOriginalName = getOriginalNameByPath(fileLocation) + "." + getImageType(fileLocation);
+        String imageOriginalName = getOriginalNameByPath(fileLocation);
 
         imageResponseDto.getHeaders().setContentDispositionFormData("attachment", imageOriginalName);
 
@@ -197,6 +197,7 @@ public class CdnService {
         // cdn에 저장할 이미지 이름 생성
         String cdnImageName = cdnUrl.replace(getPartCdnUrl(), "");
         String saveFileName = fileName + "_" + cdnImageName + "." + fileExtension;
+        log.info("저장될 파일명: " + saveFileName);
 
         // 이미지 저장
         String fileLocation = saveImageInCdn(imageByte, saveFileName);
