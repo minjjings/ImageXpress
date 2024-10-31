@@ -1,96 +1,4 @@
 services:
-  eureka:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./eureka
-    ports:
-      - "19090:19090"
-    networks:
-      - image_network
-    env_file:
-      - .env
-  gateway:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./gateway
-    ports:
-      - "19091:19091"
-    networks:
-      - image_network
-    depends_on:
-      - eureka
-    env_file:
-      - .env
-  cdn:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./cdn
-    ports:
-      - "19096:19096"
-    networks:
-      - image_network
-    volumes:
-      - ./cdn/images:/app/cdn/images  # 로컬 cdn 폴더의 images 폴더를 컨테이너에 매핑
-    env_file:
-      - .env
-  url:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./url
-    ports:
-      - "19093:19093"
-    networks:
-      - image_network
-    env_file:
-      - .env
-  data:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./data
-    ports:
-      - "19095:19095"
-    networks:
-      - image_network
-    env_file:
-      - .env
-  upload:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./upload
-    ports:
-      - "19092:19092"
-    networks:
-      - image_network
-    env_file:
-      - .env
-  convert:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./convert
-    ports:
-      - "19097:19097"
-    networks:
-      - image_network
-    env_file:
-      - .env
-  resize:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./resize
-    ports:
-      - "19098:19098"
-    networks:
-      - image_network
-    env_file:
-      - .env
   server-data-db:
     container_name: server_data_db
     image: postgres
@@ -172,7 +80,7 @@ services:
     image: provectuslabs/kafka-ui:latest
     platform: linux/amd64
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092

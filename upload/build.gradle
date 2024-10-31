@@ -40,6 +40,14 @@ dependencies {
     //okhttp
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
+// redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // WebP
+    implementation "com.sksamuel.scrimage:scrimage-core:4.0.32"
+    implementation "com.sksamuel.scrimage:scrimage-webp:4.0.32"
+
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     compileOnly 'org.projectlombok:lombok'

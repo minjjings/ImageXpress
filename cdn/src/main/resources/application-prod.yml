@@ -1,4 +1,0 @@
-cdn:
-  image:
-    path: "./cdn/images/"
-    url: ${SERVER_IP}
