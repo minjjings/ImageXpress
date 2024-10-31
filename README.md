@@ -44,7 +44,8 @@
 
 ### 수정된 인프라 설계도
 
-<img width="550" alt="image" src="https://github.com/user-attachments/assets/d43eafa5-9c64-440c-a2d9-2599bd5dc924">
+<img width="550" alt="image" src="https://github.com/user-attachments/assets/755a0e8a-3ff2-4b23-8457-95649dc3d63b">
+
 
 
 ---
@@ -55,11 +56,12 @@
 - **확장자 체크**
 - **이미지 메타데이터 제거**
 - **이미지 JPEG 파일 변환**
+- **이미지 캐싱 처리**
 
 ### 2️⃣ Image Upload Server
 - **이미지 업로드**
 - **이미지 정보 DB 저장 (원본 이름, 확장자 등)**
-- **이미지 캐싱 처리**
+
 
 ### 3️⃣ Image Resizing Server
 - **이미지 리사이징**
