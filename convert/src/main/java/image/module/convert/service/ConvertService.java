@@ -36,7 +36,7 @@ public class ConvertService {
       this.kafkaTemplate = kafkaTemplate1;
   }
 
-  @Transactional
+
   public ResponseEntity<String> convert(MultipartFile image, String originalFilename , EcommerceImageSize imageSize) throws IOException {
 
     String imageFormat = imageUtil.getImageFormat(image);

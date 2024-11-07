@@ -28,6 +28,10 @@ ext {
 }
 
 dependencies {
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // feignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     
