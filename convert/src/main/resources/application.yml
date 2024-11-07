@@ -1,0 +1,57 @@
+spring:
+  application:
+    name:
+
+ #redis
+  data:
+    redis:
+      host: localhost # Redis 서버의 호스트명
+      port: 6379       # Redis 서버 포트
+  #kafaka
+  kafka:
+    # kafka 클러스터의 주소와 포트를 지정
+    bootstrap-servers: localhost:29092
+    #kafka 프로듀서의 설정
+    producer:
+      # 프로듀서가 보낼 메시지의 키를 직렬화 하는 방법을 지정
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 프로듀서가 보낼 메시지의 값을 직렬화 하는 방법을 지정
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  servlet:
+    multipart:
+      max-file-size: 1GB # 최대 파일 사이즈
+      max-request-size: 1GB # 최대 요청 사이즈
+#    #kafka 컨슈머의 설정
+#    consumer:
+#      # 컨슈머가 수신할 때 메시지의 키를 역직렬화 하는 방법을 지정
+#      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+#      # 컨슈머가 수신할 메시지의 값을 역직렬화 하는 방법을 지정
+#      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+#      #추가설정
+#      properties:
+#        spring:
+#          deserializer:
+#            key:
+#              delegate:
+#                #역직렬화에 사용할 클래스 , 여기서는 StringDeserializer 를 사용하여 문자열 키를 역질렬화
+#                class: org.apache.kafka.common.serialization.StringDeserializer
+#            value:
+#              delegate:
+#                # 값 역질렬화에 사용할 클래스 JsonDeserializer를 사용해 Json 데이터를 java객체로 역직렬화
+#                class: org.springframework.kafka.support.serializer.JsonDeserializer
+#          json:
+#            type:
+#              #Json 데이터를 어떤 java 클래스에 매핑할 것인지를 정의
+#              mapping: "image.module.upload.application.ImageUploadMessage:image.module.convert.dto.OriginalImageResponse"
+#server
+server:
+  port: 19097
+
+#eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+
+
