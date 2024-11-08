@@ -18,10 +18,14 @@ spring:
           uri: lb://cdn  # 이름으로 로드 밸런싱된 서비스로 라우팅
           predicates:
             - Path=/cdn/**  # 경로로 들어오는 요청을 이 라우트로 처리
-        - id: fetch # 라우트 식별자
-          uri: lb://fetch  # 이름으로 로드 밸런싱된 서비스로 라우팅
+        - id: resize # 라우트 식별자
+          uri: lb://resize  # 이름으로 로드 밸런싱된 서비스로 라우팅
           predicates:
-            - Path=/fetch/**  # 경로로 들어오는 요청을 이 라우트로 처리
+            - Path=/resize/**  # 경로로 들어오는 요청을 이 라우트로 처리
+        - id: convert # 라우트 식별자
+          uri: lb://convert  # 이름으로 로드 밸런싱된 서비스로 라우팅
+          predicates:
+            - Path=/convert/**  # 경로로 들어오는 요청을 이 라우트로 처리
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정

@@ -1,6 +1,6 @@
 spring:
   application:
-    name:
+    name: convert
 
  #redis
   data:

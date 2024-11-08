@@ -1,10 +1,10 @@
 spring:
   application:
     name: cdn
-  data:
-    redis:
-      host: localhost # Redis 서버의 호스트명
-      port: 6379       # Redis 서버 포트
+#  data:
+#    redis:
+#      host: localhost # Redis 서버의 호스트명
+#      port: 6379       # Redis 서버 포트
 
 server:
   port: 19096
