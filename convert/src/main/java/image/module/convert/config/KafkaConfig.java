@@ -23,4 +23,10 @@ public class KafkaConfig {
         // 새로운 토픽 생성
         return new NewTopic("image-upload-topic", 1, (short) 1);
     }
+
+    @Bean
+    public NewTopic imageResizeUploadTopic() {
+        // 새로운 토픽 생성
+        return new NewTopic("imate-resize-upload-topic", 1, (short) 1);
+    }
 }

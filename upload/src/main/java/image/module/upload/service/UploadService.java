@@ -27,6 +27,9 @@ public class UploadService {
     @Value("${minio.buckets.uploadBucket}")
     private String uploadBucket; // 업로드 버킷 이름
 
+    @Value("mybucket")
+    private String downloadBucket;
+
     @KafkaListener(topics = "image-upload-topic", groupId = "image-upload-group")
     public ResponseEntity<String> imageUpload(String message) {
         try {
@@ -59,7 +62,7 @@ public class UploadService {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(uploadBucket)
+                            .bucket(downloadBucket)
                             .object(uploadImageName) // 업로드할 이미지 이름
                             .stream(new ByteArrayInputStream(imageBytes), imageBytes.length, -1)
                             .contentType("image/jpeg") // MIME 타입 설정
