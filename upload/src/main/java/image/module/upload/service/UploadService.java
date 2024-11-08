@@ -2,6 +2,7 @@ package image.module.upload.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import image.module.upload.dto.ImageKafkaMessage;
+import image.module.upload.infrastructure.ConvertService;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class UploadService {
     private final MinioClient minioClient;
     private final RedisService redisService;
+    private final ConvertService convertService;
 
     @Value("${minio.buckets.uploadBucket}")
     private String uploadBucket; // 업로드 버킷 이름
@@ -32,15 +34,18 @@ public class UploadService {
             ImageKafkaMessage imageKafkaMessage = new ObjectMapper().readValue(message, ImageKafkaMessage.class);
             String uploadImageName = imageKafkaMessage.getUploadImageName();
             log.info("Upload image name: {}", uploadImageName);
-            // Redis에서 이미지 데이터 조회
-            byte[] imageBytes = redisService.getImage(uploadImageName);
-            log.info("Upload image bytes: {}", imageBytes);
-            if (imageBytes == null) {
-                return ResponseEntity.badRequest().body("Image not found in Redis: " + uploadImageName);
-            }
-
+//            // Redis에서 이미지 데이터 조회
+//            byte[] imageBytes = redisService.getImage(uploadImageName);
+//            log.info("Upload image bytes: {}", imageBytes);
+//            if (imageBytes == null) {
+//                return ResponseEntity.badRequest().body("Image not found in Redis: " + uploadImageName);
+//            }
+            byte[] imageBytes = convertService.getRedisImageByte(uploadImageName).getBody();
+            log.info("Upload image bytes: {}", imageBytes.length);
             // MinIO에 이미지 업로드
             uploadImageToMinIO(uploadImageName, imageBytes);
+
+            //데이터베이스에 저장 로직 추가
 
             return ResponseEntity.ok("Image uploaded successfully: " + uploadImageName);
         } catch (Exception e) {

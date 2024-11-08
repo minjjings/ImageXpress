@@ -28,6 +28,7 @@ services:
     container_name: image_redis
     ports:
       - "6379:6379"
+    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]  # 바인드 주소 및 보호 모드 설정
     networks:
       - image_network
 

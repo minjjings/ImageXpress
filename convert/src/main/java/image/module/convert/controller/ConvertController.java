@@ -2,13 +2,12 @@ package image.module.convert.controller;
 
 import image.module.convert.dto.EcommerceImageSize;
 import image.module.convert.service.ConvertService;
+import image.module.convert.service.RedisService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.io.IOException;
 public class ConvertController {
 
     private final ConvertService convertService;
-
+    private final RedisService redisService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImages(@RequestParam("file") MultipartFile file,
@@ -45,4 +44,13 @@ public class ConvertController {
         }
     }
 
-}
+    //레디스에서 이미지 byte조회
+    @GetMapping("/getRedisImageByte")
+    public ResponseEntity<byte[]> getRedisImageByte(@RequestParam String imageName) {
+
+       byte[] base64Image = convertService.getRedisImageByte(imageName);
+
+        return ResponseEntity.ok(base64Image);
+    }
+    }
+
