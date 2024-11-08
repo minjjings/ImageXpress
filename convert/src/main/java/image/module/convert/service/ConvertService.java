@@ -55,6 +55,7 @@ public class ConvertService {
 
       // Kafka로 이미지 이름과 크기 전송
       kafkaTemplate.send("image-upload-topic", ImageKafkaMessage.fromEcommerceImageSize(uploadFileName, imageSize));
+    kafkaTemplate.send("imate-resize-upload-topic", ImageKafkaMessage.fromEcommerceImageSize(uploadFileName, imageSize));
       log.info("Sent message to Kafka: {} with size: {}", uploadFileName, imageSize);
 
 
