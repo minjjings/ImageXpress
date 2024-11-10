@@ -13,4 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface ConvertClient extends ConvertService {
     @GetMapping("/image/getRedisImageByte")
     ResponseEntity<byte[]> getRedisImageByte(@RequestParam String imageName);
+
+
+
 }

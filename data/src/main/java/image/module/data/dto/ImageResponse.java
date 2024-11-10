@@ -1,6 +1,6 @@
 package image.module.data.dto;
 
-import image.module.data.domain.Image;
+
 
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -20,20 +20,7 @@ public class ImageResponse {
     private String storedFileName;
     private String cdnUrl;
     private String fileType;
-    private Integer size;
-    private Integer cachingTime;
-    private UUID originalFileUUID;
 
-    public static ImageResponse fromEntity(Image image){
-        return ImageResponse.builder()
-                .id(image.getId())
-                .originalFileName(image.getOriginalFileName())
-                .storedFileName(image.getStoredFileName())
-                .cdnUrl(image.getCdnUrl())
-                .fileType(image.getFileType())
-                .size(image.getSize())
-                .cachingTime(image.getCachingTime())
-                .originalFileUUID(image.getOriginalFileUUID())
-                .build();
-    }
+
+
 }

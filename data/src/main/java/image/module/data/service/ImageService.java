@@ -1,66 +1,80 @@
 package image.module.data.service;
 
-import image.module.data.domain.Image;
-import image.module.data.dto.ImageResponse;
-import image.module.data.repository.ImageRepository;
-import image.module.data.dto.ImageRequest;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import image.module.data.domain.*;
+
+import image.module.data.repository.*;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 
 @RequiredArgsConstructor
 @Service
 public class ImageService {
-    private final ImageRepository imageRepository;
+
+    private final OriginalRepository originalRepository;
+    private final BannerRepository bannerRepository;
+    private final CategoryRepository categoryRepository;
+    private final DetailRepository detailRepository;
+    private final ZoomRepository zoomRepository;
+    private final ThumbnailRepository thumbnailRepository;
+
+
 
     @Transactional
-    public ImageResponse saveImage(ImageRequest request){
-        Image image = Image.create(request);
-        imageRepository.save(image);
-        image.assignOriginalFileUUID();
-        return ImageResponse.fromEntity(image);
+    public ResponseEntity<String> saveImage(String uploadImageName, String storedImageName) {
+
+        String cdnUrl = "localhost:19096/cdn/"+storedImageName;
+
+        Original original = Original.create(uploadImageName,storedImageName,cdnUrl);
+
+        originalRepository.save(original);
+
+
+        return ResponseEntity.ok("저장 완료되었습니다.");
     }
 
-    public ImageResponse getImageName(UUID id) {
-        return ImageResponse.fromEntity(imageRepository.findById(id).orElse(null));
-    }
+    @Transactional
+    public void saveResizingImage(String uploadImageName, String storedImageName, String imageType) {
 
-    public ImageResponse getCDNImageName(String cdnUrl) {
+        if (imageType.equals("BANNER")){
 
-        Image image = imageRepository.findByCdnUrl(cdnUrl);
+            String cdnUrl = "localhost:19096/cdn/"+storedImageName;
 
-        if(image != null){
-            return ImageResponse.fromEntity(image);
-        }else {
-            //이미지가 없을 경우 처리
-            throw new EntityNotFoundException("Image not found"+cdnUrl);
+            Banner banner = Banner.create(uploadImageName,storedImageName,cdnUrl);
+            bannerRepository.save(banner);
+
         }
 
+        if (imageType.equals("THUMBNAIL")){
+            String cdnUrl = "localhost:19096/cdn/"+storedImageName;
+            Thumbnail thumbnail = Thumbnail.create(uploadImageName,storedImageName,cdnUrl);
+            thumbnailRepository.save(thumbnail);
+
+        }
+
+        if (imageType.equals("CATEGORY")){
+            String cdnUrl = "localhost:19096/cdn/"+storedImageName;
+            Category category = Category.create(uploadImageName,storedImageName,cdnUrl);
+            categoryRepository.save(category);
+
+        }
+
+        if (imageType.equals("DETAIL")){
+            String cdnUrl = "localhost:19096/cdn/"+storedImageName;
+            Detail detail = Detail.create(uploadImageName,storedImageName,cdnUrl);
+            detailRepository.save(detail);
+
+        }
+
+        if (imageType.equals("ZOOM")){
+            String cdnUrl = "localhost:19096/cdn/"+storedImageName;
+            Zoom zoom = Zoom.create(uploadImageName,storedImageName,cdnUrl);
+            zoomRepository.save(zoom);
+        }
+
+
     }
-
-    // size, cdnUrl 업데이트
-    public void updateImage(UpdateImageData updateImageData) {
-
-        Image image = imageRepository.findByStoredFileName(updateImageData.getStoredFileName()).orElseThrow(
-                () ->  new EntityNotFoundException("저장된 파일 이름을 찾을 수 없습니다")
-        );
-        image.updateImageData(updateImageData.getSize(), updateImageData.getCdnBaseUrl());
-        imageRepository.save(image);
-    }
-
-
-    // 리사이즈 WebP 이미지 DB 저장
-    public void creatImage(CreateResizeRequest createResizeRequest) {
-
-        Image image = imageRepository.findByStoredFileName(createResizeRequest.getStoredFileName()).orElseThrow(
-                () -> new IllegalArgumentException("저장된 파일 이름을 찾을 수 없습니다")
-        );
-        Image SaveResizeimage = Image.createResize(image, createResizeRequest);
-        imageRepository.save(SaveResizeimage);
-
-    }
-
 }

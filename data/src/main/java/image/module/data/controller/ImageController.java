@@ -4,6 +4,7 @@ import image.module.data.dto.ImageResponse;
 import image.module.data.service.ImageService;
 import image.module.data.dto.ImageRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
@@ -15,44 +16,27 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @PostMapping("/image/upload")
-    public ImageResponse uploadImage(@RequestBody ImageRequest imageRequest){
-        return imageService.saveImage(imageRequest);
+    //원본 이미지 업로드
+    @PostMapping("/image/originalImageUpload")
+    public ResponseEntity<String> uploadImage(@RequestParam String uploadImageName,
+                                              @RequestParam  String storedImageName){
+        imageService.saveImage(uploadImageName,storedImageName);
+        return ResponseEntity.ok("저장 완료 되었습니다");
     }
 
-    //fetch -> 객체 조회
-    @GetMapping("/image/getImageName")
-    public ImageResponse getImageName(@RequestParam("id") UUID id){
+    //리사이징 업로드
+    @PostMapping("/image/resizingImageUpload")
+    public ResponseEntity<String> uploadResizingImage(@RequestParam String uploadImageName,
+                                                      @RequestParam  String storedImageName,
+                                                      @RequestParam String imageType){
 
-        ImageResponse getImageName = imageService.getImageName(id);
+        imageService.saveResizingImage(uploadImageName,storedImageName,imageType);
 
-        return getImageName;
-    }
-
-    //fetch -> cdn 주소로 객체 조회
-    @GetMapping("/image/getCDNImageName")
-    public ImageResponse getCDNImageName(@RequestParam("cdnUrl") String cdnUrl){
-
-        ImageResponse getCDNImageName = imageService.getCDNImageName(cdnUrl);
-
-        return getCDNImageName;
-    }
-
-    // size, cdnUrl 업데이트
-    @PostMapping("/image/update")
-    public void updateImageData(
-            @RequestBody UpdateImageData updateImageData
-    ) {
-        imageService.updateImage(updateImageData); // Image 업데이트 로직
+        return  ResponseEntity.ok("저장 완료 되었습니다.");
 
     }
 
-    // 리사이즈 WebP 이미지 DB 저장
-    @PostMapping("/image/create/resize")
-    public void createResizeImage(
-            @RequestBody CreateResizeRequest createResizeRequest
-    ) {
-        imageService.creatImage(createResizeRequest); // Image 업데이트 로직
 
-    }
+
+
 }

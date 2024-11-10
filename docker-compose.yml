@@ -23,7 +23,7 @@ services:
     networks:
       - image_network
 
-  redis:
+  redis_1:
     image: redis:latest
     container_name: image_redis
     ports:
@@ -31,6 +31,15 @@ services:
     command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]  # 바인드 주소 및 보호 모드 설정
     networks:
       - image_network
+        
+  redis_2:
+    image: redis:latest
+    container_name: image_redis_2
+    ports:
+      - "6380:6379"
+    command: [ "redis-server", "--bind", "0.0.0.0", "--protected-mode", "no" ]  # 바인드 주소 및 보호 모드 설정
+    networks:
+      - image_network      
 
   minio:
     image: minio/minio
