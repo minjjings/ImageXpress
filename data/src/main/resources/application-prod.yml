@@ -1,8 +1,0 @@
-spring:
-  application:
-    name: data
-  datasource:
-    url: jdbc:postgresql://${RDS_ADDRESS}/image_module
-    username: ${USER_NAME}
-    password: ${PASSWORD}
-    driver-class-name: org.postgresql.Driver

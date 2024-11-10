@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -21,28 +22,13 @@ public class CdnController {
     private final CdnService cdnService;
 
     @GetMapping("/{cdnImageName}")
-    public ResponseEntity<byte[]> getImage(HttpServletRequest request) {
-        try {
-            ImageResponseDto imageResponseDto = cdnService.getImage(request.getRequestURL().toString());
-            return ResponseEntity.ok()
-                    .headers(imageResponseDto.getHeaders())
-                    .body(imageResponseDto.getImageBytes());
-        } catch (IOException e) {
-            log.error("이미지 조회에서 IOException 발생");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<String> getImage(@RequestParam String imagName,
+                                           @RequestParam String imageSize) {
+
+//        cdnService.getImage(imagName,imageSize);
+
+     return ResponseEntity.ok("이미지 조회 완료 ");
     }
 
-    @GetMapping("/download/{cdnImageName}")
-    public ResponseEntity<byte[]> downloadImage(HttpServletRequest request) {
-        try {
-            ImageResponseDto imageResponseDto = cdnService.downloadImage(request.getRequestURL().toString());
-            return ResponseEntity.ok()
-                    .headers(imageResponseDto.getHeaders())
-                    .body(imageResponseDto.getImageBytes());
-        } catch (IOException e) {
-            log.error("이미지 다운로드에서 IOException 발생");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
+
 }

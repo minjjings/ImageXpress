@@ -3,6 +3,7 @@ package image.module.upload.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import image.module.upload.dto.ImageKafkaMessage;
 import image.module.upload.infrastructure.ConvertService;
+import image.module.upload.infrastructure.DataService;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UploadService {
     private final MinioClient minioClient;
     private final RedisService redisService;
     private final ConvertService convertService;
+    private final DataService dataService;
 
     @Value("${minio.buckets.uploadBucket}")
     private String uploadBucket; // 업로드 버킷 이름
@@ -36,19 +38,19 @@ public class UploadService {
             // Kafka에서 수신한 메시지를 ImageKafkaMessage로 변환
             ImageKafkaMessage imageKafkaMessage = new ObjectMapper().readValue(message, ImageKafkaMessage.class);
             String uploadImageName = imageKafkaMessage.getUploadImageName();
+            String storedImageName =  "original/" + uploadImageName;
             log.info("Upload image name: {}", uploadImageName);
-//            // Redis에서 이미지 데이터 조회
-//            byte[] imageBytes = redisService.getImage(uploadImageName);
-//            log.info("Upload image bytes: {}", imageBytes);
-//            if (imageBytes == null) {
-//                return ResponseEntity.badRequest().body("Image not found in Redis: " + uploadImageName);
-//            }
+
             byte[] imageBytes = convertService.getRedisImageByte(uploadImageName).getBody();
             log.info("Upload image bytes: {}", imageBytes.length);
             // MinIO에 이미지 업로드
-            uploadImageToMinIO(uploadImageName, imageBytes);
+            uploadImageToMinIO(storedImageName, imageBytes);
+
 
             //데이터베이스에 저장 로직 추가
+
+            dataService.uploadImage(uploadImageName,storedImageName);
+
 
             return ResponseEntity.ok("Image uploaded successfully: " + uploadImageName);
         } catch (Exception e) {
@@ -58,6 +60,7 @@ public class UploadService {
         }
     }
 
+    //minio 업로드 메서드
     private void uploadImageToMinIO(String uploadImageName, byte[] imageBytes) throws Exception {
         try {
             minioClient.putObject(
