@@ -47,6 +47,8 @@ public class ConvertService {
     // JPEG 이미지로 압축 및 메타데이터 제거
     byte[] compressedImageBytes = imageUtil.compressImage(bufferedImage, 0.50f); // 품질 50%
 
+
+
     // Redis에 이미지 저장
     redisService.saveImage(uploadFileName, compressedImageBytes);
     log.info("Saved image to Redis: {}", uploadFileName);

@@ -16,7 +16,7 @@ import java.util.UUID;
     @NoArgsConstructor
     @AllArgsConstructor
 //@Where(clause = "is_deleted = false")
-    @Entity(name = "BannerImage")
+    @Entity
     public class Banner extends BaseEntity {
 
             @Id
