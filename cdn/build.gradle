@@ -28,6 +28,9 @@ ext {
 }
 
 dependencies {
+    //minio
+    implementation 'io.minio:minio:8.5.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     // actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
