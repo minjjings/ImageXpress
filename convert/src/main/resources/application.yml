@@ -1,6 +1,8 @@
 spring:
   application:
     name: convert
+    profiles:
+      active: convert
 
  #redis
   data:

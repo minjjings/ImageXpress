@@ -1,9 +1,8 @@
 package image.module.cdn.service;
 
-import image.module.cdn.dto.ImageResponseDto;
-
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
@@ -30,29 +29,36 @@ public class CdnService {
     private String downloadBucket;
 
     @Transactional
-    public ResponseEntity<byte[]> getImage(String imageName, String imageSize) {
+    public InputStream getImage(String imageName, String imageSize) {
+        log.info("redisService start");
+
         // Redis에서 이미지 조회
         String key = imageSize.toLowerCase() + "/" + imageName;
         byte[] imageValue = redisService.getImage(key);
+        log.info("key = " + key);
+        log.info("redisService 존재여부: " + (imageValue != null ? "존재" : "없음"));
 
         if (imageValue == null) {
             // 이미지가 Redis에 없으면 MinIO에서 조회
-            String bucket = "ORIGINAL".equals(imageSize) ? downloadBucket : uploadBucket;
+            String bucket = "original".equals(imageSize) ? downloadBucket : uploadBucket;
 
             try {
                 // MinIO에서 이미지 바이트 배열로 조회
-                imageValue = getImageByteArray(bucket, imageName);
+                imageValue = getImageByteArray(bucket,key);
+
+                log.info(Arrays.toString(imageValue));
 
                 // 조회된 이미지를 Redis에 저장
                 redisService.saveImage(key, imageValue);
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(("Error fetching image: " + e.getMessage()).getBytes());
+                throw new RuntimeException("Error fetching image: " + e.getMessage());
             }
         }
 
-        return ResponseEntity.ok(imageValue);
+        // byte[] 데이터를 InputStream으로 변환
+        return new ByteArrayInputStream(imageValue);
     }
+
 
     // MinIO에서 이미지 바이트 배열로 가져오는 메서드
     private byte[] getImageByteArray(String bucket, String storageFileName) throws Exception {
