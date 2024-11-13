@@ -5,6 +5,46 @@
 ## 📍 프로젝트 목표
 - Redis 캐싱을 활용해 이미지 업로드와 조회 기능 성능 향상
 
+## 🏗️ 인프라 설계도
+
+### 수정된 인프라 설계도 
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/10fd0b42-17c8-4fe2-b7a1-12d4c62de1d2">
+
+### 기존 인프라 설계도
+![기존 설계도](https://github.com/user-attachments/assets/a482a794-c114-43ce-9616-a65bf102678b)
+
+## 🚀 주요 기능
+
+### 1. Image Convert Server
+- 매직넘버 확인으로 확장자 체크
+- 이미지 메타데이터 제거
+- 이미지 JPEG 파일 변환
+- 이미지 캐싱 처리
+- 이미지 정보 Kafka로 upload , resize 서버에 전달 
+
+### 2. Image Upload Server
+- 이미지 Minio에 업로드
+- 이미지 정보 DB 저장 요청 (원본 이름, 확장자 등)
+
+### 3. Image Resizing Server
+- 이미지 리사이징
+- 리사이징된 이미지 정보 DB 저장 요청 
+- 리사이징 이미지 Minio에 업로드
+
+### 4. CDN Server
+- 브라우저의 이미지 조회 요청 처리
+- 이미지 캐싱 처리
+
+### 5. Data Server
+- 이미지 정보 DB 저장
+- CDN URL 생성
+
+
+## ⚙️ 적용 기술
+
+![기술 스택](https://github.com/user-attachments/assets/7ecff12a-3bdf-46ff-ba60-4020224089a1)
+
+
 ## 🛠️ 이미지 처리 시스템 개선 사항
 
 ### 1. CDN 조회 방식 개선
@@ -102,40 +142,7 @@
   - **성능 향상**: **80%** 접근 횟수 감소.
 
 
-## 🏗️ 인프라 설계도
 
-### 수정된 인프라 설계도 
-<img width="1000" alt="image" src="https://github.com/user-attachments/assets/10fd0b42-17c8-4fe2-b7a1-12d4c62de1d2">
-
-### 기존 인프라 설계도
-![기존 설계도](https://github.com/user-attachments/assets/a482a794-c114-43ce-9616-a65bf102678b)
-
-## 🚀 주요 기능
-
-### 1. Image Convert Server
-- 확장자 체크
-- 이미지 메타데이터 제거
-- 이미지 JPEG 파일 변환
-- 이미지 캐싱 처리
-- 이미지 정보 upload , resize 서버에 전달 
-
-### 2. Image Upload Server
-- 이미지 업로드
-- 이미지 정보 DB 저장 (원본 이름, 확장자 등)
-
-### 3. Image Resizing Server
-- 이미지 리사이징
-- 리사이징된 이미지 정보 DB 저장
-- 리사이징 이미지 업로드
-
-### 4. CDN Server
-- 브라우저의 이미지 조회 요청 처리
-- 이미지 캐싱 처리
-
-
-## ⚙️ 적용 기술
-
-![기술 스택](https://github.com/user-attachments/assets/7ecff12a-3bdf-46ff-ba60-4020224089a1)
 
 ---
 
