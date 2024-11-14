@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 
 @RequiredArgsConstructor
 @Service
@@ -77,4 +80,43 @@ public class ImageService {
 
 
     }
+
+    public String getCdnUrl(String originalFileName, String imageType) {
+
+        String cdnUrl= null;
+
+
+        switch (imageType) {
+            case "ORIGINAL":
+                Original original = originalRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = original.getCdnUrl();
+                break;
+            case "BANNER":
+                Banner banner =bannerRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = banner.getCdnUrl();
+                break;
+            case "ZOOM":
+                Zoom zoom = zoomRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = zoom.getCdnUrl();
+                break;
+            case "DETAIL":
+                Detail detail  = detailRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = detail.getCdnUrl();
+                break;
+            case "THUMBNAIL":
+                Thumbnail thumbnail= thumbnailRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = thumbnail.getCdnUrl();
+                break;
+            case "CATEGORY":
+                Category category = categoryRepository.findByOriginalFileName(originalFileName);
+                cdnUrl = category.getCdnUrl();
+                break;
+            default:
+                throw new IllegalArgumentException("지원하지 않는 이미지 타입입니다: " + imageType);
+        }
+
+        return cdnUrl;
+    }
+
+
 }

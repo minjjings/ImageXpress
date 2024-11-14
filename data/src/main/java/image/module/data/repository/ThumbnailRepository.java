@@ -8,4 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface ThumbnailRepository extends JpaRepository<Thumbnail, UUID> {
+
+
+    Thumbnail findByOriginalFileName(String originalFileName);
 }

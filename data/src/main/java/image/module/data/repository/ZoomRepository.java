@@ -8,4 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface ZoomRepository extends JpaRepository<Zoom, UUID> {
+
+
+    Zoom findByOriginalFileName(String originalFileName);
 }
