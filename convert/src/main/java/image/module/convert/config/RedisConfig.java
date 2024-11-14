@@ -10,7 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 @Configuration
-@Profile("convert")
+//@Profile("convert")
 public class RedisConfig {
 
     @Bean

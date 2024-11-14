@@ -45,7 +45,7 @@ public class ConvertService {
     // JPEG로 압축
     String uploadFileName = originalFilename.replaceFirst("[.][^.]+$", "") + ".jpg"; // .jpg로 변경
     // JPEG 이미지로 압축 및 메타데이터 제거
-    byte[] compressedImageBytes = imageUtil.compressImage(bufferedImage, 0.50f); // 품질 50%
+    byte[] compressedImageBytes = imageUtil.compressImage(bufferedImage, 0.80f); // 품질 50%
 
 
 

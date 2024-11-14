@@ -3,6 +3,7 @@ package image.module.data.controller;
 import image.module.data.dto.ImageResponse;
 import image.module.data.service.ImageService;
 import image.module.data.dto.ImageRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,16 @@ public class ImageController {
 
         return  ResponseEntity.ok("저장 완료 되었습니다.");
 
+    }
+
+    //이미지원본 이름과 type으로 cdn url 검색
+    @GetMapping("/image/getCdnUrl")
+    public ResponseEntity<String> getCdnURl(@RequestParam String originalFileName,
+                                            @RequestParam String imageType){
+
+        String cdnUrl = imageService.getCdnUrl(originalFileName,imageType);
+
+        return ResponseEntity.ok(cdnUrl);
     }
 
 

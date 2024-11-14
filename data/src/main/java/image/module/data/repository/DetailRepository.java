@@ -8,4 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface DetailRepository extends JpaRepository<Detail, UUID> {
+
+
+    Detail findByOriginalFileName(String originalFileName);
 }
