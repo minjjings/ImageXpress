@@ -13,7 +13,8 @@
 ## 🏗️ 인프라 설계도
 
 ### 수정된 인프라 설계도 
-<img width="1000" alt="image" src="https://github.com/user-attachments/assets/10fd0b42-17c8-4fe2-b7a1-12d4c62de1d2">
+<img width="1140" alt="image" src="https://github.com/user-attachments/assets/b052f487-809d-47ab-aa64-cc498e830cd3">
+
 
 ### 기존 인프라 설계도
 ![기존 설계도](https://github.com/user-attachments/assets/a482a794-c114-43ce-9616-a65bf102678b)
